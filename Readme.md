@@ -1,7 +1,7 @@
 # Проект «Киноман»
 
 * Студент: [Den Glazunov](https://up.htmlacademy.ru/ecmascript/16/user/333991).
-* Наставник: `Неизвестно`.
+* Наставник: [Максим Деев](https://htmlacademy.ru/profile/id685777).
 
 ---
 
