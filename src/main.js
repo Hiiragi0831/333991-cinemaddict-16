@@ -1,5 +1,5 @@
 import {createProfileTemplate} from './view/profile-view.js';
-import {createSiteMenuTemplate} from './view/site-menu-view.js';
+import SiteMenuView from './view/site-menu-view.js';
 import {createSortLinksTemplate} from './view/sort-view.js';
 import {createFilmsSectionTemplate} from './view/films-section-view.js';
 import {createFilmCardTemplate} from './view/film-view.js';
@@ -7,7 +7,7 @@ import {createButtonMoreTemplate} from './view/more-views.js';
 import {createPopupTemplate} from './view/film-details-view.js';
 import {createFooterStatisticsTemplate} from './view/statistics-view.js';
 
-import {renderTemplate, RenderPosition} from './render.js';
+import {renderTemplate, RenderPosition, renderElement} from './render.js';
 import {generateMovie} from './mock/movie';
 import {generateComment} from './mock/comment';
 import {getRandomInteger} from './utils';
@@ -23,7 +23,8 @@ const siteMainElement = document.querySelector('.main');
 const footerStatisticsElement = document.querySelector('.footer__statistics');
 
 renderTemplate(siteHeaderElement, createProfileTemplate(), RenderPosition.BEFOREEND);
-renderTemplate(siteMainElement, createSiteMenuTemplate(films), RenderPosition.BEFOREEND);
+// renderTemplate(siteMainElement, createSiteMenuTemplate(films), RenderPosition.BEFOREEND);
+renderElement(siteHeaderElement, new SiteMenuView(films).element, RenderPosition.BEFOREEND);
 renderTemplate(siteMainElement, createSortLinksTemplate(), RenderPosition.BEFOREEND);
 renderTemplate(siteMainElement, createFilmsSectionTemplate(), RenderPosition.BEFOREEND);
 renderTemplate(footerStatisticsElement, createFooterStatisticsTemplate(films), RenderPosition.BEFOREEND);
