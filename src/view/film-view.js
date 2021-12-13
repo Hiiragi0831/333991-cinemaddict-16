@@ -1,4 +1,6 @@
-export const createFilmCardTemplate = (film, comments) => {
+import {createElement} from '../render';
+
+const createFilmCardTemplate = (film, comments) => {
   const {title, description, releaseDateYear, rating, runTime, genresOne, image, isWatchlist, isWatched, isFavorite} = film;
 
   const watchlistClassName = isWatchlist ? 'film-card__controls-item--active' : '';
@@ -33,3 +35,31 @@ export const createFilmCardTemplate = (film, comments) => {
     </div>
   </article>`;
 };
+
+
+export default class FilmCardView {
+  #element = null;
+  #films = null;
+  #comments = null;
+
+  constructor(films, comments) {
+    this.#films = films;
+    this.#comments = comments;
+  }
+
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
+    }
+
+    return this.#element;
+  }
+
+  get template() {
+    return createFilmCardTemplate(this.#films, this.#comments);
+  }
+
+  removeElement() {
+    this.#element = null;
+  }
+}

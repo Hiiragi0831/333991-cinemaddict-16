@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import {MAX_GAP_MINUTES, MIN_GAP_MINUTES, START_DATE, END_DATE} from './mock/constants';
+import {generateComment} from './mock/comment';
 
 export const getRandomInteger = (a = 0, b = 1) => {
   const lower = Math.ceil(Math.min(a, b));
@@ -56,3 +57,16 @@ export const generateRuntime= () => {
 };
 
 export const generateDate= () => dayjs(getRandomDate(START_DATE, END_DATE));
+
+export function generateComments (arr) {
+  const newArr = [];
+
+  for (let i = 0; i < arr.length; i++) {
+    const randNum = getRandomInteger(0, 5);
+
+    for (let j = 0; j < randNum; j++) {
+      newArr.push(generateComment(arr[i].idx));
+    }
+  }
+  return newArr;
+}

@@ -1,4 +1,6 @@
-export const createPopupTemplate = (film, comments) => {
+import {createElement} from '../render';
+
+const createPopupTemplate = (film, comments) => {
   const {title, description, releaseDate, rating, runTime, genres, image, isWatchlist, isWatched, isFavorite, age, writers, actors, country, director} = film;
 
   const watchlistClassName = isWatchlist ? 'film-details__control-button--active' : '';
@@ -146,3 +148,30 @@ export const createPopupTemplate = (film, comments) => {
     </form>
   </section>`;
 };
+
+export default class PopupCardView {
+  #element = null;
+  #films = null;
+  #comments = null;
+
+  constructor(films, comments) {
+    this.#films = films;
+    this.#comments = comments;
+  }
+
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
+    }
+
+    return this.#element;
+  }
+
+  get template() {
+    return createPopupTemplate(this.#films, this.#comments);
+  }
+
+  removeElement() {
+    this.#element = null;
+  }
+}
