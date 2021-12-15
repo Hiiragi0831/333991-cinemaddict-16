@@ -11,6 +11,14 @@ const createFilmsSectionTemplate = () => (
   </section>`
 );
 
+const createFilmsSectionEmptyTemplate = () => (
+  `<section class="films">
+    <section class="films-list">
+      <h2 class="films-list__title">There are no movies in our database</h2>
+    </section>
+  </section>`
+);
+
 export default class FilmsSectionView {
   #element = null;
 
@@ -24,6 +32,26 @@ export default class FilmsSectionView {
 
   get template() {
     return createFilmsSectionTemplate();
+  }
+
+  removeElement() {
+    this.#element = null;
+  }
+}
+
+export class FilmsSectionViewEmpty {
+  #element = null;
+
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
+    }
+
+    return this.#element;
+  }
+
+  get template() {
+    return createFilmsSectionEmptyTemplate();
   }
 
   removeElement() {
