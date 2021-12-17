@@ -1,7 +1,7 @@
 import ProfileSectionView from './view/profile-view.js';
 import SiteMenuView from './view/site-menu-view.js';
 import SortLinksView from './view/sort-view.js';
-import FilmsSectionView from './view/films-section-view.js';
+import FilmsSectionView, {FilmsSectionViewEmpty} from './view/films-section-view.js';
 import FilmCardView from './view/film-view.js';
 import ButtonMoreView from './view/more-views.js';
 import PopupCardView from './view/film-details-view.js';
@@ -10,7 +10,7 @@ import {RenderPosition, render} from './render.js';
 import {generateMovie} from './mock/movie.js';
 import {generateComments} from './utils.js';
 
-const FILM_CARD_COUNT = 20;
+const FILM_CARD_COUNT = 0;
 const FILM_COUNT_PER_STEP = 5;
 
 
@@ -69,8 +69,12 @@ render(footerStatisticsElement, new FooterStatisticsView(films).element, RenderP
 
 const filmsContainerElement = document.querySelector('.films-list__container');
 
-for (let i = 0; i < Math.min(films.length, FILM_COUNT_PER_STEP); i++) {
-  renderFilm(filmsContainerElement, films[i], comments);
+if (films.length === 0) {
+  render(filmsContainerElement, new FilmsSectionViewEmpty().element, RenderPosition.AFTEREND);
+} else {
+  for (let i = 0; i < Math.min(films.length, FILM_COUNT_PER_STEP); i++) {
+    renderFilm(filmsContainerElement, films[i], comments);
+  }
 }
 
 if (films.length > FILM_COUNT_PER_STEP) {
