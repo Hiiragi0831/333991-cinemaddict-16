@@ -10,7 +10,7 @@ import {RenderPosition, render} from './render.js';
 import {generateMovie} from './mock/movie.js';
 import {generateComments} from './utils.js';
 
-const FILM_CARD_COUNT = 0;
+const FILM_CARD_COUNT = 20;
 const FILM_COUNT_PER_STEP = 5;
 
 
@@ -24,8 +24,8 @@ const footerStatisticsElement = document.querySelector('.footer__statistics');
 const renderFilm = (containerElement, film, commentary) => {
   const filmComponent = new FilmCardView(film, commentary);
   const popupComponent = new PopupCardView(film, commentary);
-  const popup = document.querySelector('.film-details');
   const body = document.querySelector('body');
+  const popup = document.querySelector('.film-details');
 
   const createPopup = () => {
     render(siteMainElement, popupComponent.element, RenderPosition.AFTEREND);
@@ -40,6 +40,7 @@ const renderFilm = (containerElement, film, commentary) => {
       document.removeEventListener('keydown', onEscKeyDown);
     }
   };
+
   const closeButton = (evt) => {
     evt.preventDefault();
     document.querySelector('.film-details__close-btn').addEventListener('click', () => {
