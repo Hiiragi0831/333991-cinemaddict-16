@@ -21,6 +21,8 @@ const siteHeaderElement = document.querySelector('.header');
 const siteMainElement = document.querySelector('.main');
 const footerStatisticsElement = document.querySelector('.footer__statistics');
 
+let activePopup = null;
+
 const renderFilm = (containerElement, film, commentary) => {
   const filmComponent = new FilmCardView(film, commentary);
   const popupComponent = new PopupCardView(film, commentary);
@@ -29,12 +31,13 @@ const renderFilm = (containerElement, film, commentary) => {
   const createPopup = () => {
     render(siteMainElement, popupComponent, RenderPosition.AFTEREND);
     body.classList.add('hide-overflow');
+    activePopup = popupComponent;
   };
 
   const onEscKeyDown = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
-      remove(popupComponent);
+      remove(activePopup);
       body.classList.remove('hide-overflow');
       document.removeEventListener('keydown', onEscKeyDown);
     }
@@ -43,7 +46,7 @@ const renderFilm = (containerElement, film, commentary) => {
   const closeButton = (evt) => {
     evt.preventDefault();
     popupComponent.element.querySelector('.film-details__close-btn').addEventListener('click', () => {
-      remove(popupComponent);
+      remove(activePopup);
       body.classList.remove('hide-overflow');
       document.removeEventListener('keydown', closeButton);
     });
@@ -51,8 +54,8 @@ const renderFilm = (containerElement, film, commentary) => {
   };
 
   filmComponent.setClickHandler(() => {
-    if (popupComponent.element) {
-      remove(popupComponent);
+    if (activePopup) {
+      remove(activePopup);
     }
     createPopup();
     document.addEventListener('keydown', onEscKeyDown);
