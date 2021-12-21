@@ -1,4 +1,4 @@
-import {createElement} from '../render.js';
+import AbstractView from './abstract-view';
 
 const createSiteMenuTemplate = (films) => {
   const isWatchlist = films.filter((film) => !film.isWatchlist).length;
@@ -16,27 +16,15 @@ const createSiteMenuTemplate = (films) => {
   </nav>`);
 };
 
-export default class SiteMenuView {
-  #element = null;
+export default class SiteMenuView extends AbstractView {
   #films = null;
 
   constructor(films) {
+    super();
     this.#films = films;
-  }
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
   }
 
   get template() {
     return createSiteMenuTemplate(this.#films);
-  }
-
-  removeElement() {
-    this.#element = null;
   }
 }

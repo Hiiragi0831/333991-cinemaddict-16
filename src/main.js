@@ -6,11 +6,11 @@ import FilmCardView from './view/film-view.js';
 import ButtonMoreView from './view/more-views.js';
 import PopupCardView from './view/film-details-view.js';
 import FooterStatisticsView from './view/statistics-view.js';
-import {RenderPosition, render} from './render.js';
+import {RenderPosition, render, remove} from './render.js';
 import {generateMovie} from './mock/movie.js';
 import {generateComments} from './utils.js';
 
-const FILM_CARD_COUNT = 0;
+const FILM_CARD_COUNT = 20;
 const FILM_COUNT_PER_STEP = 5;
 
 
@@ -21,56 +21,60 @@ const siteHeaderElement = document.querySelector('.header');
 const siteMainElement = document.querySelector('.main');
 const footerStatisticsElement = document.querySelector('.footer__statistics');
 
+let activePopup = null;
+
 const renderFilm = (containerElement, film, commentary) => {
   const filmComponent = new FilmCardView(film, commentary);
   const popupComponent = new PopupCardView(film, commentary);
-  const popup = document.querySelector('.film-details');
   const body = document.querySelector('body');
 
   const createPopup = () => {
-    render(siteMainElement, popupComponent.element, RenderPosition.AFTEREND);
+    render(siteMainElement, popupComponent, RenderPosition.AFTEREND);
     body.classList.add('hide-overflow');
+    activePopup = popupComponent;
   };
 
   const onEscKeyDown = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
-      popup.remove();
+      remove(activePopup);
       body.classList.remove('hide-overflow');
       document.removeEventListener('keydown', onEscKeyDown);
     }
   };
+
   const closeButton = (evt) => {
     evt.preventDefault();
-    document.querySelector('.film-details__close-btn').addEventListener('click', () => {
-      popup.remove();
+    popupComponent.element.querySelector('.film-details__close-btn').addEventListener('click', () => {
+      remove(activePopup);
       body.classList.remove('hide-overflow');
+      document.removeEventListener('keydown', closeButton);
     });
     document.removeEventListener('keydown', closeButton);
   };
 
-  filmComponent.element.querySelector('.film-card__link').addEventListener('click', () => {
-    if (popup) {
-      popup.remove();
+  filmComponent.setClickHandler(() => {
+    if (activePopup) {
+      remove(activePopup);
     }
     createPopup();
     document.addEventListener('keydown', onEscKeyDown);
     document.addEventListener('click', closeButton);
   });
 
-  render(containerElement, filmComponent.element, RenderPosition.BEFOREEND);
+  render(containerElement, filmComponent, RenderPosition.BEFOREEND);
 };
 
-render(siteHeaderElement, new ProfileSectionView().element, RenderPosition.BEFOREEND);
-render(siteMainElement, new SiteMenuView(films).element, RenderPosition.BEFOREEND);
-render(siteMainElement, new SortLinksView().element, RenderPosition.BEFOREEND);
-render(siteMainElement, new FilmsSectionView().element, RenderPosition.BEFOREEND);
-render(footerStatisticsElement, new FooterStatisticsView(films).element, RenderPosition.BEFOREEND);
+render(siteHeaderElement, new ProfileSectionView(), RenderPosition.BEFOREEND);
+render(siteMainElement, new SiteMenuView(films), RenderPosition.BEFOREEND);
+render(siteMainElement, new SortLinksView(), RenderPosition.BEFOREEND);
+render(siteMainElement, new FilmsSectionView(), RenderPosition.BEFOREEND);
+render(footerStatisticsElement, new FooterStatisticsView(films), RenderPosition.BEFOREEND);
 
 const filmsContainerElement = document.querySelector('.films-list__container');
 
 if (films.length === 0) {
-  render(filmsContainerElement, new FilmsSectionViewEmpty().element, RenderPosition.AFTEREND);
+  render(filmsContainerElement, new FilmsSectionViewEmpty(), RenderPosition.AFTEREND);
 } else {
   for (let i = 0; i < Math.min(films.length, FILM_COUNT_PER_STEP); i++) {
     renderFilm(filmsContainerElement, films[i], comments);
@@ -79,13 +83,11 @@ if (films.length === 0) {
 
 if (films.length > FILM_COUNT_PER_STEP) {
   let renderedTaskCount = FILM_COUNT_PER_STEP;
+  const loadMoreButton = new ButtonMoreView();
 
-  render(filmsContainerElement, new ButtonMoreView().element, RenderPosition.AFTEREND);
+  render(filmsContainerElement, loadMoreButton, RenderPosition.AFTEREND);
 
-  const loadMoreButton = document.querySelector('.films-list__show-more');
-
-  loadMoreButton.addEventListener('click', (evt) => {
-    evt.preventDefault();
+  loadMoreButton.setClickHandler(() => {
     films
       .slice(renderedTaskCount, renderedTaskCount + FILM_COUNT_PER_STEP)
       .forEach((film) => renderFilm(filmsContainerElement, film, comments));
@@ -93,7 +95,7 @@ if (films.length > FILM_COUNT_PER_STEP) {
     renderedTaskCount += FILM_COUNT_PER_STEP;
 
     if (renderedTaskCount >= films.length) {
-      loadMoreButton.remove();
+      loadMoreButton.element.remove();
     }
   });
 }
