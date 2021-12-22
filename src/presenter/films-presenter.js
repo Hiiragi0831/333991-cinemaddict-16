@@ -14,9 +14,10 @@ export default class FilmsPresenter {
   #filmsSectionComponent = new FilmsSectionView();
   #sortComponent = new SortLinksView();
   #noFilmsComponent = new FilmsSectionViewEmpty();
-
   #films = [];
   #comments = [];
+  #renderedFilmCount = FILM_COUNT_PER_STEP;
+  #filmPresenter = new Map();
 
   constructor(filmsContainer) {
     this.#filmsContainer = filmsContainer;
@@ -33,12 +34,10 @@ export default class FilmsPresenter {
     this.#renderContainer();
   }
 
-  // Готов
   #renderSort = () => {
     render(this.#filmsContainer, this.#sortComponent, RenderPosition.BEFOREEND);
   }
 
-  // Отрефакторить
   #renderFilm = (film, commentary) => {
     const filmComponent = new FilmCardView(film, commentary);
     const popupComponent = new PopupCardView(film, commentary);
@@ -49,15 +48,6 @@ export default class FilmsPresenter {
       render(this.#filmsContainer, popupComponent, RenderPosition.AFTEREND);
       body.classList.add('hide-overflow');
       this.#activePopup = popupComponent;
-    };
-
-    const onEscKeyDown = (evt) => {
-      if (evt.key === 'Escape' || evt.key === 'Esc') {
-        evt.preventDefault();
-        remove(this.#activePopup);
-        body.classList.remove('hide-overflow');
-        document.removeEventListener('keydown', onEscKeyDown);
-      }
     };
 
     const closeButton = (evt) => {
@@ -75,14 +65,15 @@ export default class FilmsPresenter {
         remove(this.#activePopup);
       }
       createPopup();
-      document.addEventListener('keydown', onEscKeyDown);
+      document.addEventListener('keydown', this.#escKeyDownHandler);
       document.addEventListener('click', closeButton);
     });
 
     render(filmsContainerElement, filmComponent, RenderPosition.BEFOREEND);
+
+    this.#filmPresenter.set(film.idx, this.#renderFilm);
   }
 
-  // Готов
   #renderFilms = (from, to) => {
     // Метод для рендеринга N-задач за раз
     this.#films
@@ -90,23 +81,21 @@ export default class FilmsPresenter {
       .forEach((film) => this.#renderFilm(film, this.#comments));
   }
 
-  // Готов
   #renderNoFilms = () => {
     render(this.#filmsContainer, this.#noFilmsComponent, RenderPosition.AFTEREND);
   }
 
-  // Отрефакторить
   #renderLoadMoreButton = () => {
-    let renderedTaskCount = FILM_COUNT_PER_STEP;
+    let renderedTaskCount = this.#renderedFilmCount;
     const filmsContainerElement = this.#filmsSectionComponent.element.querySelector('.films-list__container');
     const loadMoreButton = new ButtonMoreView();
 
     render(filmsContainerElement, loadMoreButton, RenderPosition.AFTEREND);
 
     loadMoreButton.setClickHandler(() => {
-      this.#renderFilms(renderedTaskCount, renderedTaskCount + FILM_COUNT_PER_STEP);
+      this.#renderFilms(renderedTaskCount, renderedTaskCount + this.#renderedFilmCount);
 
-      renderedTaskCount += FILM_COUNT_PER_STEP;
+      renderedTaskCount += this.#renderedFilmCount;
 
       if (renderedTaskCount >= this.#films.length) {
         remove(loadMoreButton);
@@ -114,17 +103,32 @@ export default class FilmsPresenter {
     });
   }
 
-  // Готов
   #renderContainer = () => {
     if (this.#films.length === 0) {
       this.#renderNoFilms();
       return;
     }
 
-    this.#renderFilms(0, Math.min(this.#films.length, FILM_COUNT_PER_STEP));
+    this.#renderFilms(0, Math.min(this.#films.length, this.#renderedFilmCount));
 
-    if (this.#films.length > FILM_COUNT_PER_STEP) {
+    if (this.#films.length > this.#renderedFilmCount) {
       this.#renderLoadMoreButton();
+    }
+  }
+
+  #clearTaskList = () => {
+    this.#filmPresenter.forEach((presenter) => presenter.destroy());
+    this.#filmPresenter.clear();
+    this.#renderFilms = this.#renderedFilmCount;
+    remove(this.#renderLoadMoreButton);
+  }
+
+  #escKeyDownHandler = (evt) => {
+    if (evt.key === 'Escape' || evt.key === 'Esc') {
+      evt.preventDefault();
+      remove(this.#activePopup);
+      document.querySelector('body').classList.remove('hide-overflow');
+      document.removeEventListener('keydown', this.#escKeyDownHandler);
     }
   }
 }
