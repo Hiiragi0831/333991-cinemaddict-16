@@ -10,6 +10,7 @@ const FILM_COUNT_PER_STEP = 5;
 export default class FilmsPresenter {
   #filmsContainer = null;
   #activePopup = null;
+  #changeCardData = null;
 
   #filmsSectionComponent = new FilmsSectionView();
   #sortComponent = new SortLinksView();
@@ -19,8 +20,9 @@ export default class FilmsPresenter {
   #renderedFilmCount = FILM_COUNT_PER_STEP;
   #filmPresenter = new Map();
 
-  constructor(filmsContainer) {
+  constructor(filmsContainer, changeCardData) {
     this.#filmsContainer = filmsContainer;
+    this.#changeCardData = changeCardData;
   }
 
   init = (films, comments) => {
@@ -130,5 +132,17 @@ export default class FilmsPresenter {
       document.querySelector('body').classList.remove('hide-overflow');
       document.removeEventListener('keydown', this.#escKeyDownHandler);
     }
+  }
+
+  #handleFavoriteClick = () => {
+    this.#changeCardData({...this.#films, isFavorite: !this.#films.isFavorite});
+  }
+
+  #handleWatchedClick = () => {
+    this.#changeCardData({...this.#films, isWatched: !this.#films.isWatched});
+  }
+
+  #handleWatchlistClick = () => {
+    this.#changeCardData({...this.#films, isWatchlist: !this.#films.isWatchlist});
   }
 }
