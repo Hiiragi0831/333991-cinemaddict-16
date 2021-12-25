@@ -20,9 +20,8 @@ export default class FilmsPresenter {
   #renderedFilmCount = FILM_COUNT_PER_STEP;
   #filmPresenter = new Map();
 
-  constructor(filmsContainer, changeCardData) {
+  constructor(filmsContainer) {
     this.#filmsContainer = filmsContainer;
-    this.#changeCardData = changeCardData;
   }
 
   init = (films, comments) => {
@@ -49,6 +48,9 @@ export default class FilmsPresenter {
       render(this.#filmsContainer, popupComponent, RenderPosition.AFTEREND);
       document.querySelector('body').classList.add('hide-overflow');
       this.#activePopup = popupComponent;
+      popupComponent.setFavoriteClickHandler(this.#handleFavoriteClick.bind(this));
+      popupComponent.setWatchedClickHandler(this.#handleWatchedClick.bind(this));
+      popupComponent.setWatchlistClickHandler(this.#handleWatchlistClick.bind(this));
     };
 
     filmComponent.element.querySelector('.film-card__link').addEventListener(('click'), () => {
@@ -63,6 +65,9 @@ export default class FilmsPresenter {
     render(filmsContainerElement, filmComponent, RenderPosition.BEFOREEND);
 
     this.#filmPresenter.set(film.idx, this.#renderFilm);
+    filmComponent.setFavoriteClickHandler(this.#handleFavoriteClick.bind(this));
+    filmComponent.setWatchedClickHandler(this.#handleWatchedClick.bind(this));
+    filmComponent.setWatchlistClickHandler(this.#handleWatchlistClick.bind(this));
   }
 
   #renderFilms = (from, to) => {
@@ -133,15 +138,18 @@ export default class FilmsPresenter {
     }
   }
 
-  #handleFavoriteClick = () => {
-    this.#changeCardData({...this.#films, isFavorite: !this.#films.isFavorite});
+  #handleFavoriteClick = (idx) => {
+    const favFilm = this.#films.find((film) => film.idx === idx);
+    favFilm.isFavorite = !favFilm.isFavorite;
   }
 
-  #handleWatchedClick = () => {
-    this.#changeCardData({...this.#films, isWatched: !this.#films.isWatched});
+  #handleWatchedClick = (idx) => {
+    const favFilm = this.#films.find((film) => film.idx === idx);
+    favFilm.isWatched = !favFilm.isWatched;
   }
 
-  #handleWatchlistClick = () => {
-    this.#changeCardData({...this.#films, isWatchlist: !this.#films.isWatchlist});
+  #handleWatchlistClick = (idx) => {
+    const favFilm = this.#films.find((film) => film.idx === idx);
+    favFilm.isWatchlist = !favFilm.isWatchlist;
   }
 }
