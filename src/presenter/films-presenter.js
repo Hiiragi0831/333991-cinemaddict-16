@@ -43,12 +43,11 @@ export default class FilmsPresenter {
   #renderFilm = (film, commentary) => {
     const filmComponent = new FilmCardView(film, commentary);
     const popupComponent = new PopupCardView(film, commentary);
-    const body = document.querySelector('body');
     const filmsContainerElement = this.#filmsSectionComponent.element.querySelector('.films-list__container');
 
     const createPopup = () => {
       render(this.#filmsContainer, popupComponent, RenderPosition.AFTEREND);
-      body.classList.add('hide-overflow');
+      document.querySelector('body').classList.add('hide-overflow');
       this.#activePopup = popupComponent;
     };
 
@@ -67,7 +66,6 @@ export default class FilmsPresenter {
   }
 
   #renderFilms = (from, to) => {
-    // Метод для рендеринга N-задач за раз
     this.#films
       .slice(from, to)
       .forEach((film) => this.#renderFilm(film, this.#comments));
@@ -121,6 +119,7 @@ export default class FilmsPresenter {
       remove(this.#activePopup);
       document.querySelector('body').classList.remove('hide-overflow');
       document.removeEventListener('keydown', this.#escKeyDownHandler);
+      document.removeEventListener('click', this.#closeButton);
     }
   }
 
@@ -130,6 +129,7 @@ export default class FilmsPresenter {
       remove(this.#activePopup);
       document.querySelector('body').classList.remove('hide-overflow');
       document.removeEventListener('click', this.#closeButton);
+      document.removeEventListener('keydown', this.#escKeyDownHandler);
     }
   }
 
