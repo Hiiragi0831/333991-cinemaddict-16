@@ -52,14 +52,7 @@ export default class FilmCardView extends AbstractView {
   }
 
   setClickHandler = (callback) => {
-    // Мы могли бы сразу передать callback в addEventListener,
-    // но тогда бы для удаления обработчика в будущем,
-    // нам нужно было бы производить это снаружи, где-то там,
-    // где мы вызывали setClickHandler, что не всегда удобно
-
-    // 1. Поэтому колбэк мы запишем во внутреннее свойство
     this._callback.click = callback;
-    // 2. В addEventListener передадим абстрактный обработчик
     this.element.addEventListener('click', this.#clickHandler);
   }
 
@@ -67,5 +60,38 @@ export default class FilmCardView extends AbstractView {
     evt.preventDefault();
     // 3. А внутри абстрактного обработчика вызовем колбэк
     this._callback.click();
+  }
+
+  setFavoriteClickHandler = (callback) => {
+    this._callback.favoriteClick = callback;
+    this.element.querySelector('.film-card__controls-item--favorite').addEventListener('click', this.#favoriteClickHandler);
+  }
+
+  setWatchedClickHandler = (callback) => {
+    this._callback.WatchedClick = callback;
+    this.element.querySelector('.film-card__controls-item--mark-as-watched').addEventListener('click', this.#watchedClickHandler);
+  }
+
+  setWatchlistClickHandler = (callback) => {
+    this._callback.WatchlistClick = callback;
+    this.element.querySelector('.film-card__controls-item--add-to-watchlist').addEventListener('click', this.#watchlistClickHandler);
+  }
+
+  #favoriteClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.favoriteClick(this.#films.idx);
+    evt.target.classList.toggle('film-card__controls-item--active');
+  }
+
+  #watchlistClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.WatchlistClick(this.#films.idx);
+    evt.target.classList.toggle('film-card__controls-item--active');
+  }
+
+  #watchedClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.WatchedClick(this.#films.idx);
+    evt.target.classList.toggle('film-card__controls-item--active');
   }
 }
