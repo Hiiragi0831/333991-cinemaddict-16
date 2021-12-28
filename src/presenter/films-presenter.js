@@ -4,7 +4,7 @@ import {remove, render, RenderPosition} from '../render';
 import FilmCardView from '../view/film-view';
 import PopupCardView from '../view/film-details-view';
 import ButtonMoreView from '../view/more-views';
-import {sortTaskUp, sortTaskDown, sortMoviesByDate, sortMoviesByRating} from '../utils';
+import {sortByDate, sortByRating} from '../utils';
 
 const FILM_COUNT_PER_STEP = 5;
 
@@ -29,31 +29,22 @@ export default class FilmsPresenter {
   init = (films, comments) => {
     this.#films = [...films];
     this.#comments = [...comments];
-
     this.#sourcedFilms = [...films];
 
-    this.#renderSort();
-
-    render(this.#filmsContainer, this.#filmsSectionComponent, RenderPosition.BEFOREEND);
-
+    this.#renderSortList();
     this.#renderContainer();
   }
 
   #sortFilms = (sortType) => {
-    // 2. Этот исходный массив задач необходим,
-    // потому что для сортировки мы будем мутировать
-    // массив в свойстве _boardTasks
     switch (sortType) {
       case SortType.DATE:
-        this.#sourcedFilms = sortMoviesByRating(this.#sourcedFilms);
+        this.#films = sortByDate(this.#films);
         break;
       case SortType.RATING:
-        this.#sourcedFilms=;
+        this.#films = sortByRating(this.#films);
         break;
       default:
-        // 3. А когда пользователь захочет "вернуть всё, как было",
-        // мы просто запишем в _boardTasks исходный массив
-        this.#sourcedFilms = [...this.#sourcedFilms];
+        this.#films = [...this.#sourcedFilms];
     }
 
     this.#currentSortType = sortType;
@@ -69,7 +60,7 @@ export default class FilmsPresenter {
     this.#renderContainer();
   }
 
-  #renderSort = () => {
+  #renderSortList = () => {
     render(this.#filmsContainer, this.#sortComponent, RenderPosition.BEFOREEND);
     this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
   }
@@ -138,6 +129,7 @@ export default class FilmsPresenter {
       this.#renderNoFilms();
       return;
     }
+    render(this.#filmsContainer, this.#filmsSectionComponent, RenderPosition.BEFOREEND);
 
     this.#renderFilms(0, Math.min(this.#films.length, this.#renderedFilmCount));
 
@@ -147,10 +139,7 @@ export default class FilmsPresenter {
   }
 
   #clearFilmList = () => {
-    this.#filmPresenter.forEach((presenter) => presenter.destroy());
-    this.#filmPresenter.clear();
-    this.#renderFilms = this.#renderedFilmCount;
-    remove(this.#renderLoadMoreButton);
+    remove(this.#filmsSectionComponent);
   }
 
   #escKeyDownHandler = (evt) => {
