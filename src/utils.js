@@ -68,3 +68,38 @@ export function generateComments (arr) {
   }
   return newArr;
 }
+
+const getWeightForNullDate = (dateA, dateB) => {
+  if (dateA === null && dateB === null) {
+    return 0;
+  }
+
+  if (dateA === null) {
+    return 1;
+  }
+
+  if (dateB === null) {
+    return -1;
+  }
+
+  return null;
+};
+
+export const sortTaskUp = (taskA, taskB) => {
+  const weight = getWeightForNullDate(taskA.dueDate, taskB.dueDate);
+
+  return weight ?? dayjs(taskA.dueDate).diff(dayjs(taskB.dueDate));
+};
+
+export const sortTaskDown = (taskA, taskB) => {
+  const weight = getWeightForNullDate(taskA.dueDate, taskB.dueDate);
+
+  return weight ?? dayjs(taskB.dueDate).diff(dayjs(taskA.dueDate));
+};
+
+export const sortMoviesByRating = (movies) => movies.slice().sort(({rating: firstRating}, {rating: secondRating}) => firstRating < secondRating);
+export const sortMoviesByDate = (movies) => movies.slice().sort(({releaseDate: firstDate}, {releaseDate: secondDate}) => firstDate < secondDate);
+
+export const filmsByRating = (filmA, filmB) => {
+
+};

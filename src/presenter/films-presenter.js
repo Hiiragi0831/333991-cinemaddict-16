@@ -1,16 +1,16 @@
 import FilmsSectionView, {FilmsSectionViewEmpty} from '../view/films-section-view';
-import SortLinksView from '../view/sort-view';
+import SortLinksView, {SortType} from '../view/sort-view';
 import {remove, render, RenderPosition} from '../render';
 import FilmCardView from '../view/film-view';
 import PopupCardView from '../view/film-details-view';
 import ButtonMoreView from '../view/more-views';
+import {sortTaskUp, sortTaskDown, sortMoviesByDate, sortMoviesByRating} from '../utils';
 
 const FILM_COUNT_PER_STEP = 5;
 
 export default class FilmsPresenter {
   #filmsContainer = null;
   #activePopup = null;
-  #changeCardData = null;
 
   #filmsSectionComponent = new FilmsSectionView();
   #sortComponent = new SortLinksView();
@@ -19,6 +19,8 @@ export default class FilmsPresenter {
   #comments = [];
   #renderedFilmCount = FILM_COUNT_PER_STEP;
   #filmPresenter = new Map();
+  #currentSortType = SortType.DEFAULT;
+  #sourcedFilms = [];
 
   constructor(filmsContainer) {
     this.#filmsContainer = filmsContainer;
@@ -28,6 +30,8 @@ export default class FilmsPresenter {
     this.#films = [...films];
     this.#comments = [...comments];
 
+    this.#sourcedFilms = [...films];
+
     this.#renderSort();
 
     render(this.#filmsContainer, this.#filmsSectionComponent, RenderPosition.BEFOREEND);
@@ -35,8 +39,39 @@ export default class FilmsPresenter {
     this.#renderContainer();
   }
 
+  #sortFilms = (sortType) => {
+    // 2. Этот исходный массив задач необходим,
+    // потому что для сортировки мы будем мутировать
+    // массив в свойстве _boardTasks
+    switch (sortType) {
+      case SortType.DATE:
+        this.#sourcedFilms = sortMoviesByRating(this.#sourcedFilms);
+        break;
+      case SortType.RATING:
+        this.#sourcedFilms=;
+        break;
+      default:
+        // 3. А когда пользователь захочет "вернуть всё, как было",
+        // мы просто запишем в _boardTasks исходный массив
+        this.#sourcedFilms = [...this.#sourcedFilms];
+    }
+
+    this.#currentSortType = sortType;
+  }
+
+  #handleSortTypeChange = (sortType) => {
+    if (this.#currentSortType === sortType) {
+      return;
+    }
+
+    this.#sortFilms(sortType);
+    this.#clearFilmList();
+    this.#renderContainer();
+  }
+
   #renderSort = () => {
     render(this.#filmsContainer, this.#sortComponent, RenderPosition.BEFOREEND);
+    this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
   }
 
   #renderFilm = (film, commentary) => {
@@ -111,7 +146,7 @@ export default class FilmsPresenter {
     }
   }
 
-  #clearTaskList = () => {
+  #clearFilmList = () => {
     this.#filmPresenter.forEach((presenter) => presenter.destroy());
     this.#filmPresenter.clear();
     this.#renderFilms = this.#renderedFilmCount;
