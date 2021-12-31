@@ -11,6 +11,7 @@ const FILM_COUNT_PER_STEP = 5;
 export default class FilmsPresenter {
   #filmsContainer = null;
   #activePopup = null;
+  #loadMoreButton = null;
 
   #filmsSectionComponent = new FilmsSectionView();
   #sortComponent = new SortLinksView();
@@ -21,6 +22,7 @@ export default class FilmsPresenter {
   #filmPresenter = new Map();
   #currentSortType = SortType.DEFAULT;
   #sourcedFilms = [];
+  #createdFilms = [];
 
   constructor(filmsContainer) {
     this.#filmsContainer = filmsContainer;
@@ -94,12 +96,11 @@ export default class FilmsPresenter {
     filmComponent.setFavoriteClickHandler(this.#handleFavoriteClick.bind(this));
     filmComponent.setWatchedClickHandler(this.#handleWatchedClick.bind(this));
     filmComponent.setWatchlistClickHandler(this.#handleWatchlistClick.bind(this));
+    return filmComponent;
   }
 
   #renderFilms = (from, to) => {
-    this.#films
-      .slice(from, to)
-      .forEach((film) => this.#renderFilm(film, this.#comments));
+    this.#createdFilms = this.#films.slice(from, to).map((film) => this.#renderFilm(film, this.#comments));
   }
 
   #renderNoFilms = () => {
@@ -109,17 +110,17 @@ export default class FilmsPresenter {
   #renderLoadMoreButton = () => {
     let renderedTaskCount = this.#renderedFilmCount;
     const filmsContainerElement = this.#filmsSectionComponent.element.querySelector('.films-list__container');
-    const loadMoreButton = new ButtonMoreView();
+    this.#loadMoreButton = new ButtonMoreView();
 
-    render(filmsContainerElement, loadMoreButton, RenderPosition.AFTEREND);
+    render(filmsContainerElement, this.#loadMoreButton, RenderPosition.AFTEREND);
 
-    loadMoreButton.setClickHandler(() => {
+    this.#loadMoreButton.setClickHandler(() => {
       this.#renderFilms(renderedTaskCount, renderedTaskCount + this.#renderedFilmCount);
 
       renderedTaskCount += this.#renderedFilmCount;
 
       if (renderedTaskCount >= this.#films.length) {
-        remove(loadMoreButton);
+        remove(this.#loadMoreButton);
       }
     });
   }
@@ -139,7 +140,8 @@ export default class FilmsPresenter {
   }
 
   #clearFilmList = () => {
-    remove(this.#filmsSectionComponent);
+    this.#createdFilms.forEach((film) => remove(film));
+    remove(this.#loadMoreButton);
   }
 
   #escKeyDownHandler = (evt) => {
