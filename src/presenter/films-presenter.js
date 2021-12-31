@@ -100,7 +100,7 @@ export default class FilmsPresenter {
   }
 
   #renderFilms = (from, to) => {
-    this.#createdFilms = this.#films.slice(from, to).map((film) => this.#renderFilm(film, this.#comments));
+    this.#createdFilms = [...this.#createdFilms, ...this.#films.slice(from, to).map((film) => this.#renderFilm(film, this.#comments))];
   }
 
   #renderNoFilms = () => {
@@ -142,6 +142,7 @@ export default class FilmsPresenter {
   #clearFilmList = () => {
     this.#createdFilms.forEach((film) => remove(film));
     remove(this.#loadMoreButton);
+    this.#createdFilms = [];
   }
 
   #escKeyDownHandler = (evt) => {
@@ -149,8 +150,6 @@ export default class FilmsPresenter {
       evt.preventDefault();
       remove(this.#activePopup);
       document.querySelector('body').classList.remove('hide-overflow');
-      document.removeEventListener('keydown', this.#escKeyDownHandler);
-      document.removeEventListener('click', this.#closeButton);
     }
   }
 
@@ -159,8 +158,6 @@ export default class FilmsPresenter {
       evt.preventDefault();
       remove(this.#activePopup);
       document.querySelector('body').classList.remove('hide-overflow');
-      document.removeEventListener('click', this.#closeButton);
-      document.removeEventListener('keydown', this.#escKeyDownHandler);
     }
   }
 
