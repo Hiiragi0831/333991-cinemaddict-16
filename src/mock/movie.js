@@ -23,10 +23,10 @@ import {
 } from './constants';
 
 export const generateMovie = () => {
-
+  const date = generateDate();
   const runTime = generateRuntime().format('H[h] m[m]');
-  const releaseDate = generateDate().format('DD MMMM YYYY');
-  const releaseDateYear = generateDate().format('YYYY');
+  const releaseDate = date.format('DD MMMM YYYY');
+  const releaseDateYear = date.format('YYYY');
   const genres = generateRandomMuchString(FILMS_GENRES, MAX_GENRES_COUNT);
   const description = generateRandomMuchString(FILMS_DESCRIPTIONS, MAX_DESCRIPTIONS_COUNT);
   const writers = generateRandomMuchString(FILMS_SCREEN_WRITERS, MAX_DESCRIPTIONS_COUNT).join(', ');

@@ -68,3 +68,10 @@ export function generateComments (arr) {
   }
   return newArr;
 }
+
+function byField(field) {
+  return (a, b) => a[field] < b[field] ? 1 : -1;
+}
+
+export const sortByRating = (films) => films.sort(byField('rating'));
+export const sortByDate = (films) => films.sort(byField('releaseDateYear'));
