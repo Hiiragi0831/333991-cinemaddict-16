@@ -1,4 +1,4 @@
-import AbstractView from './abstract-view';
+import SmartView from './smart-view';
 
 const createPopupTemplate = (film, comments) => {
   const {title, description, releaseDate, rating, runTime, genres, image, isWatchlist, isWatched, isFavorite, age, writers, actors, country, director} = film;
@@ -149,7 +149,7 @@ const createPopupTemplate = (film, comments) => {
   </section>`;
 };
 
-export default class PopupCardView extends AbstractView {
+export default class PopupCardView extends SmartView {
   #films = null;
   #comments = null;
 
