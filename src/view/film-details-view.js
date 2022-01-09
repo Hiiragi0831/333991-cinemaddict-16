@@ -233,6 +233,5 @@ export default class PopupCardView extends SmartView {
     }
 
     this._callback.EmojiClick(selectedEmoji);
-    console.log(selectedEmoji);
   }
 }
