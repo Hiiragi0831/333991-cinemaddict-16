@@ -79,6 +79,7 @@ export default class FilmsPresenter {
       popupComponent.setFavoriteClickHandler(this.#handleFavoriteClick.bind(this));
       popupComponent.setWatchedClickHandler(this.#handleWatchedClick.bind(this));
       popupComponent.setWatchlistClickHandler(this.#handleWatchlistClick.bind(this));
+      popupComponent.setEmojiClickHandler(this.#handleEmojiClick.bind(this));
     };
 
     filmComponent.element.querySelector('.film-card__link').addEventListener(('click'), () => {
@@ -174,5 +175,9 @@ export default class FilmsPresenter {
   #handleWatchlistClick = (idx) => {
     const favFilm = this.#films.find((film) => film.idx === idx);
     favFilm.isWatchlist = !favFilm.isWatchlist;
+  }
+
+  #handleEmojiClick = (emoji) => {
+    this.#activePopup.updateData({newComment: {emoji}});
   }
 }

@@ -51,6 +51,7 @@ export const generateMovie = () => {
     director: generateRandomString(FILMS_DIRECTORS),
     actors,
     country: generateRandomString(FILMS_COUNTRIES),
-    age: getRandomInteger(DEFAULT_MIN_NUMBER, MAX_AGE)
+    age: getRandomInteger(DEFAULT_MIN_NUMBER, MAX_AGE),
+    newComment: {emoji: null},
   };
 };
