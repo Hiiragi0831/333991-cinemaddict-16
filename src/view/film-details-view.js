@@ -1,7 +1,7 @@
-import AbstractView from './abstract-view';
+import SmartView from './smart-view';
 
 const createPopupTemplate = (film, comments) => {
-  const {title, description, releaseDate, rating, runTime, genres, image, isWatchlist, isWatched, isFavorite, age, writers, actors, country, director} = film;
+  const {title, description, releaseDate, rating, runTime, genres, image, isWatchlist, isWatched, isFavorite, age, writers, actors, country, director, newComment} = film;
 
   const watchlistClassName = isWatchlist ? 'film-details__control-button--active' : '';
   const watchedClassName = isWatched ? 'film-details__control-button--active' : '';
@@ -115,31 +115,33 @@ const createPopupTemplate = (film, comments) => {
           </ul>
 
           <div class="film-details__new-comment">
-            <div class="film-details__add-emoji-label"></div>
+            <div class="film-details__add-emoji-label">
+                ${newComment.emoji ? `<img src="./images/emoji/${newComment.emoji}.png" width="71" height="71" alt="emoji" data-emoji="smile">` : ''}
+            </div>
 
             <label class="film-details__comment-label">
               <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>
             </label>
 
             <div class="film-details__emoji-list">
-              <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-smile" value="smile">
+              <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-smile" value="smile" ${newComment.emoji === 'smile' ? 'checked' : ''}>
               <label class="film-details__emoji-label" for="emoji-smile">
-                <img src="./images/emoji/smile.png" width="30" height="30" alt="emoji">
+                <img src="./images/emoji/smile.png" width="30" height="30" alt="emoji" data-emoji="smile">
               </label>
 
-              <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-sleeping" value="sleeping">
+              <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-sleeping" value="sleeping" ${newComment.emoji === 'sleeping' ? 'checked' : ''}>
               <label class="film-details__emoji-label" for="emoji-sleeping">
-                <img src="./images/emoji/sleeping.png" width="30" height="30" alt="emoji">
+                <img src="./images/emoji/sleeping.png" width="30" height="30" alt="emoji" data-emoji="sleeping">
               </label>
 
-              <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-puke" value="puke">
+              <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-puke" value="puke" ${newComment.emoji === 'puke' ? 'checked' : ''}>
               <label class="film-details__emoji-label" for="emoji-puke">
-                <img src="./images/emoji/puke.png" width="30" height="30" alt="emoji">
+                <img src="./images/emoji/puke.png" width="30" height="30" alt="emoji" data-emoji="puke">
               </label>
 
-              <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-angry" value="angry">
+              <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-angry" value="angry" ${newComment.emoji === 'angry' ? 'checked' : ''}>
               <label class="film-details__emoji-label" for="emoji-angry">
-                <img src="./images/emoji/angry.png" width="30" height="30" alt="emoji">
+                <img src="./images/emoji/angry.png" width="30" height="30" alt="emoji" data-emoji="angry">
               </label>
             </div>
           </div>
@@ -149,7 +151,7 @@ const createPopupTemplate = (film, comments) => {
   </section>`;
 };
 
-export default class PopupCardView extends AbstractView {
+export default class PopupCardView extends SmartView {
   #films = null;
   #comments = null;
 
@@ -161,6 +163,27 @@ export default class PopupCardView extends AbstractView {
 
   get template() {
     return createPopupTemplate(this.#films, this.#comments);
+  }
+
+  updateData = (filmUpdate, commentsUpdate) => {
+    if (!filmUpdate && !commentsUpdate) {
+      return;
+    }
+    if (filmUpdate) {
+      this.#films = {...this.#films, ...filmUpdate};
+    }
+    if (commentsUpdate) {
+      this.#comments = {...this.#comments, ...commentsUpdate};
+    }
+
+    this.updateElement();
+  }
+
+  restoreHandlers = () => {
+    this.element.querySelector('.film-details__control-button--favorite').addEventListener('click', this.#favoriteClickHandler);
+    this.element.querySelector('.film-details__control-button--watched').addEventListener('click', this.#watchedClickHandler);
+    this.element.querySelector('.film-details__control-button--watchlist').addEventListener('click', this.#watchlistClickHandler);
+    this.element.querySelector('.film-details__emoji-list').addEventListener('click', this.#emojiClickHandler);
   }
 
   setFavoriteClickHandler = (callback) => {
@@ -176,6 +199,11 @@ export default class PopupCardView extends AbstractView {
   setWatchlistClickHandler = (callback) => {
     this._callback.WatchlistClick = callback;
     this.element.querySelector('.film-details__control-button--watchlist').addEventListener('click', this.#watchlistClickHandler);
+  }
+
+  setEmojiClickHandler = (callback) => {
+    this._callback.EmojiClick = callback;
+    this.element.querySelector('.film-details__emoji-list').addEventListener('click', this.#emojiClickHandler);
   }
 
   #favoriteClickHandler = (evt) => {
@@ -194,5 +222,16 @@ export default class PopupCardView extends AbstractView {
     evt.preventDefault();
     this._callback.WatchedClick(this.#films.idx);
     evt.target.classList.toggle('film-details__control-button--active');
+  }
+
+  #emojiClickHandler = (evt) => {
+    evt.preventDefault();
+    let selectedEmoji = null;
+
+    if (evt.target.tagName === 'IMG') {
+      selectedEmoji = evt.target.dataset.emoji;
+    }
+
+    this._callback.EmojiClick(selectedEmoji);
   }
 }

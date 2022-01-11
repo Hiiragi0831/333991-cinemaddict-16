@@ -29,6 +29,7 @@ export default class SortLinksView extends AbstractView {
     if (evt.target.tagName !== 'A') {
       return;
     }
+
     evt.preventDefault();
     this._callback.sortTypeChange(evt.target.dataset.sortType);
     this.element.querySelectorAll('.sort__button').forEach((element) => element.classList.remove('sort__button--active'));
