@@ -1,6 +1,5 @@
 import dayjs from 'dayjs';
-import duration from 'dayjs/plugin/duration';
-import {MAX_GAP_MINUTES, MIN_GAP_MINUTES, START_DATE, END_DATE} from './mock/constants';
+import {END_DATE, MAX_GAP_MINUTES, MIN_GAP_MINUTES, START_DATE} from './mock/constants';
 import {generateComment} from './mock/comment';
 
 export const getRandomInteger = (a = 0, b = 1) => {
@@ -47,12 +46,7 @@ export const generateRandomString = (arr) => {
   return arr[randomIndex];
 };
 
-export const generateRuntime= () => {
-  dayjs.extend(duration);
-  const runtime = getRandomInteger(MIN_GAP_MINUTES, MAX_GAP_MINUTES);
-
-  return dayjs.duration(runtime, 'minutes');
-};
+export const generateRuntime= () => getRandomInteger(MIN_GAP_MINUTES, MAX_GAP_MINUTES);
 
 export const generateDate= () => dayjs(getRandomDate(START_DATE, END_DATE));
 

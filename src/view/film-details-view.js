@@ -1,7 +1,7 @@
 import SmartView from './smart-view';
 
 const createPopupTemplate = (film, comments) => {
-  const {title, description, releaseDate, rating, runTime, genres, image, isWatchlist, isWatched, isFavorite, age, writers, actors, country, director, newComment} = film;
+  const {title, description, date, rating, runTime, genres, image, isWatchlist, isWatched, isFavorite, age, writers, actors, country, director, newComment} = film;
 
   const watchlistClassName = isWatchlist ? 'film-details__control-button--active' : '';
   const watchedClassName = isWatched ? 'film-details__control-button--active' : '';
@@ -22,7 +22,7 @@ const createPopupTemplate = (film, comments) => {
         <p class="film-details__comment-text">${comment.text}</p>
         <p class="film-details__comment-info">
           <span class="film-details__comment-author">${comment.author}</span>
-          <span class="film-details__comment-day">${comment.date}</span>
+          <span class="film-details__comment-day">${comment.date.format('DD/MM/YYYY HH:mm')}</span>
           <button class="film-details__comment-delete">Delete</button>
         </p>
       </div>
@@ -75,7 +75,7 @@ const createPopupTemplate = (film, comments) => {
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Release Date</td>
-                <td class="film-details__cell">${releaseDate}</td>
+                <td class="film-details__cell">${date.format('DD MMMM YYYY')}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Runtime</td>

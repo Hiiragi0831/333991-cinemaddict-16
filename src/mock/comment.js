@@ -14,5 +14,5 @@ export const generateComment = (idx) => ({
   text: generateRandomMuchString(FILMS_DESCRIPTIONS, MAX_DESCRIPTIONS_COUNT),
   emotion: generateRandomString(COMMENTS_EMOTION),
   author: generateRandomString(COMMENTS_AUTHORS),
-  date: dayjs(getRandomDate(START_DATE, END_DATE)).format('DD/MM/YYYY HH:mm'),
+  date: dayjs(getRandomDate(START_DATE, END_DATE)),
 });

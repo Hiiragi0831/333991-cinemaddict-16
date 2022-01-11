@@ -24,9 +24,7 @@ import {
 
 export const generateMovie = () => {
   const date = generateDate();
-  const runTime = generateRuntime().format('H[h] m[m]');
-  const releaseDate = date.format('DD MMMM YYYY');
-  const releaseDateYear = date.format('YYYY');
+  const runTime = generateRuntime();
   const genres = generateRandomMuchString(FILMS_GENRES, MAX_GENRES_COUNT);
   const description = generateRandomMuchString(FILMS_DESCRIPTIONS, MAX_DESCRIPTIONS_COUNT);
   const writers = generateRandomMuchString(FILMS_SCREEN_WRITERS, MAX_DESCRIPTIONS_COUNT).join(', ');
@@ -36,8 +34,7 @@ export const generateMovie = () => {
   return {
     idx,
     title: generateRandomString(FILMS_TITLES),
-    releaseDate,
-    releaseDateYear,
+    date,
     description: description.join(' '),
     runTime,
     genres,
