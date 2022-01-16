@@ -68,7 +68,7 @@ function byField(field) {
 }
 
 export const sortByRating = (films) => films.sort(byField('rating'));
-export const sortByDate = (films) => films.sort(byField('releaseDateYear'));
+export const sortByDate = (films) => films.sort(byField('date'));
 
 // что и для чего?? судя по всему что-то за кем-то следит
 export default class AbstractObservable {

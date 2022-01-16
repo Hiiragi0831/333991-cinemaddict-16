@@ -4,11 +4,12 @@ export default class MoviesModel extends AbstractObservable {
   #films = [];
 
   get films() {
-    return this.#films;
+    return [...this.#films];
   }
 
   set films(films) {
     this.#films = [...films];
+    this._notify('load films', films);
   }
 
   updateFilm = (updateType, update) => {

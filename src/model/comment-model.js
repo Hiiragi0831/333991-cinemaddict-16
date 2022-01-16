@@ -1,13 +1,14 @@
 import AbstractObservable from '../utils';
 
 export default class CommentsModel extends AbstractObservable {
-  #films = [];
+  #comments = [];
 
-  get comment() {
-    return this.#films;
+  get comments() {
+    return this.#comments;
   }
 
-  set comment(films) {
-    this.#films = [...films];
+  set comments(comments) {
+    this.#comments = [...comments];
+    this._notify('load comments', comments);
   }
 }

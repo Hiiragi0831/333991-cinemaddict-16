@@ -5,7 +5,6 @@ import FilmCardView from '../view/film-view';
 import PopupCardView from '../view/film-details-view';
 import ButtonMoreView from '../view/more-views';
 import {sortByDate, sortByRating} from '../utils';
-import {UpdateType, UserAction} from '../const';
 
 const FILM_COUNT_PER_STEP = 5;
 
@@ -13,6 +12,7 @@ export default class FilmsPresenter {
   #filmsContainer = null;
   #activePopup = null;
   #moviesModel = null;
+  #commentsModel = null;
 
   #filmsSectionComponent = new FilmsSectionView();
   #sortComponent = new SortLinksView();
@@ -27,30 +27,37 @@ export default class FilmsPresenter {
   #createdFilms = [];
 
   // что-то иницилизируем особенно не понятно зачем здесь модель?
-  constructor(filmsContainer, moviesModel) {
+  constructor(filmsContainer, moviesModel, commentsModel) {
     this.#filmsContainer = filmsContainer;
     this.#moviesModel = moviesModel;
+    this.#commentsModel = commentsModel;
 
     this.#moviesModel.addObserver(this.#handleModelEvent);
+    this.#commentsModel.addObserver(this.#handleModelEvent);
   }
 
   // хрен пойми что!!! но как понял, это получить фильмы, но как эта шляпа работает не понятно
   get films() {
     switch (this.#currentSortType) {
+      case SortType.DEFAULT:
+        this.#films = this.#moviesModel.films;
+        return this.#films;
       case SortType.DATE:
-        this.#films = sortByDate(this.#films.films);
-        return this.#films.films;
+        this.#films = sortByDate(this.#moviesModel.films);
+        return this.#films;
       case SortType.RATING:
-        this.#films = sortByRating(this.#films.films);
-        return this.#films.films;
+        this.#films = sortByRating(this.#moviesModel.films);
+        return this.#films;
     }
     return this.#moviesModel.films;
   }
 
   init = () => {
+    this.#films = [...this.films];
+    this.#comments = [...this.#commentsModel.comments];
+
     this.#renderSortList();
     this.#renderContainer();
-    this.films();
   }
 
   // Сортировка принимает в себя тип сортировки
@@ -64,7 +71,7 @@ export default class FilmsPresenter {
     this.#renderContainer();
   }
 
-  // Рендер сортированного
+  // Рендер списка сортировки
   #renderSortList = () => {
     render(this.#filmsContainer, this.#sortComponent, RenderPosition.BEFOREEND);
     this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
@@ -115,7 +122,7 @@ export default class FilmsPresenter {
   }
 
   // Функция загрузки фильпов по клику
-  #handleLoadMoreButtonClick = () => {
+  #initLoadMoreButtonClickHandler = () => {
     const filmsCount = this.films.length;
     let renderedTaskCount = this.#renderedFilmCount;
 
@@ -134,7 +141,7 @@ export default class FilmsPresenter {
   #renderLoadMoreButton = () => {
     const filmsContainerElement = this.#filmsSectionComponent.element.querySelector('.films-list__container');
     render(filmsContainerElement, this.#loadMoreButtonComponent, RenderPosition.AFTEREND);
-    this.#loadMoreButtonComponent.setClickHandler(this.#handleLoadMoreButtonClick);
+    this.#initLoadMoreButtonClickHandler();
   }
 
   // Вывод контейнера для фильмов и рендер
@@ -214,6 +221,10 @@ export default class FilmsPresenter {
   // хрен пойми что!!!
   #handleModelEvent = (updateType, data) => {
     console.log(updateType, data);
+    if (updateType === 'load films') {
+      this.init();
+    }
+
     // В зависимости от типа изменений решаем, что делать:
     // - обновить часть списка (например, когда поменялось описание)
     // - обновить список (например, когда задача ушла в архив)
