@@ -5,68 +5,72 @@ import FilmCardView from '../view/film-view';
 import PopupCardView from '../view/film-details-view';
 import ButtonMoreView from '../view/more-views';
 import {sortByDate, sortByRating} from '../utils';
+import {UpdateType, UserAction} from '../const';
 
 const FILM_COUNT_PER_STEP = 5;
 
 export default class FilmsPresenter {
   #filmsContainer = null;
   #activePopup = null;
-  #loadMoreButton = null;
+  #moviesModel = null;
 
   #filmsSectionComponent = new FilmsSectionView();
   #sortComponent = new SortLinksView();
   #noFilmsComponent = new FilmsSectionViewEmpty();
+  #loadMoreButtonComponent = new ButtonMoreView();
   #films = [];
   #comments = [];
   #renderedFilmCount = FILM_COUNT_PER_STEP;
   #filmPresenter = new Map();
   #currentSortType = SortType.DEFAULT;
-  #sourcedFilms = [];
+
   #createdFilms = [];
 
-  constructor(filmsContainer) {
+  // что-то иницилизируем особенно не понятно зачем здесь модель?
+  constructor(filmsContainer, moviesModel) {
     this.#filmsContainer = filmsContainer;
+    this.#moviesModel = moviesModel;
+
+    this.#moviesModel.addObserver(this.#handleModelEvent);
   }
 
-  init = (films, comments) => {
-    this.#films = [...films];
-    this.#comments = [...comments];
-    this.#sourcedFilms = [...films];
+  // хрен пойми что!!! но как понял, это получить фильмы, но как эта шляпа работает не понятно
+  get films() {
+    switch (this.#currentSortType) {
+      case SortType.DATE:
+        this.#films = sortByDate(this.#films.films);
+        return this.#films.films;
+      case SortType.RATING:
+        this.#films = sortByRating(this.#films.films);
+        return this.#films.films;
+    }
+    return this.#moviesModel.films;
+  }
 
+  init = () => {
     this.#renderSortList();
     this.#renderContainer();
+    this.films();
   }
 
-  #sortFilms = (sortType) => {
-    switch (sortType) {
-      case SortType.DATE:
-        this.#films = sortByDate(this.#films);
-        break;
-      case SortType.RATING:
-        this.#films = sortByRating(this.#films);
-        break;
-      default:
-        this.#films = [...this.#sourcedFilms];
-    }
-
-    this.#currentSortType = sortType;
-  }
-
+  // Сортировка принимает в себя тип сортировки
   #handleSortTypeChange = (sortType) => {
     if (this.#currentSortType === sortType) {
       return;
     }
 
-    this.#sortFilms(sortType);
+    this.#currentSortType = sortType;
     this.#clearFilmList();
     this.#renderContainer();
   }
 
+  // Рендер сортированного
   #renderSortList = () => {
     render(this.#filmsContainer, this.#sortComponent, RenderPosition.BEFOREEND);
     this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
   }
 
+  // Рендер 1 карточки фильма и создание попап компонента
   #renderFilm = (film, commentary) => {
     const filmComponent = new FilmCardView(film, commentary);
     const popupComponent = new PopupCardView(film, commentary);
@@ -100,52 +104,64 @@ export default class FilmsPresenter {
     return filmComponent;
   }
 
+  // Проходимся по циклу
   #renderFilms = (from, to) => {
     this.#createdFilms = [...this.#createdFilms, ...this.#films.slice(from, to).map((film) => this.#renderFilm(film, this.#comments))];
   }
 
+  // Если фильмов нет то рендерим компонент с надписью пусто (Надо переделать на строку)
   #renderNoFilms = () => {
     render(this.#filmsContainer, this.#noFilmsComponent, RenderPosition.AFTEREND);
   }
 
-  #renderLoadMoreButton = () => {
+  // Функция загрузки фильпов по клику
+  #handleLoadMoreButtonClick = () => {
+    const filmsCount = this.films.length;
     let renderedTaskCount = this.#renderedFilmCount;
-    const filmsContainerElement = this.#filmsSectionComponent.element.querySelector('.films-list__container');
-    this.#loadMoreButton = new ButtonMoreView();
 
-    render(filmsContainerElement, this.#loadMoreButton, RenderPosition.AFTEREND);
-
-    this.#loadMoreButton.setClickHandler(() => {
+    this.#loadMoreButtonComponent.setClickHandler(() => {
       this.#renderFilms(renderedTaskCount, renderedTaskCount + this.#renderedFilmCount);
 
       renderedTaskCount += this.#renderedFilmCount;
 
-      if (renderedTaskCount >= this.#films.length) {
-        remove(this.#loadMoreButton);
+      if (renderedTaskCount >= filmsCount) {
+        remove(this.#loadMoreButtonComponent);
       }
     });
   }
 
+  // Вывод кнопки
+  #renderLoadMoreButton = () => {
+    const filmsContainerElement = this.#filmsSectionComponent.element.querySelector('.films-list__container');
+    render(filmsContainerElement, this.#loadMoreButtonComponent, RenderPosition.AFTEREND);
+    this.#loadMoreButtonComponent.setClickHandler(this.#handleLoadMoreButtonClick);
+  }
+
+  // Вывод контейнера для фильмов и рендер
   #renderContainer = () => {
-    if (this.#films.length === 0) {
+    const filmsCount = this.films.length;
+
+    if (filmsCount === 0) {
       this.#renderNoFilms();
       return;
     }
     render(this.#filmsContainer, this.#filmsSectionComponent, RenderPosition.BEFOREEND);
 
-    this.#renderFilms(0, Math.min(this.#films.length, this.#renderedFilmCount));
+    this.#renderFilms(0, Math.min(filmsCount, this.#renderedFilmCount));
 
-    if (this.#films.length > this.#renderedFilmCount) {
+    if (filmsCount > this.#renderedFilmCount) {
       this.#renderLoadMoreButton();
     }
   }
 
+  // Очистка всех карточек фильмов
   #clearFilmList = () => {
     this.#createdFilms.forEach((film) => remove(film));
-    remove(this.#loadMoreButton);
+    remove(this.#loadMoreButtonComponent);
     this.#createdFilms = [];
   }
 
+  // Слушатель Escape
   #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
@@ -154,6 +170,7 @@ export default class FilmsPresenter {
     }
   }
 
+  // Слушатель кнопки закрытия
   #closeButton = (evt) => {
     if (evt.target === document.querySelector('.film-details__close-btn')) {
       evt.preventDefault();
@@ -162,22 +179,44 @@ export default class FilmsPresenter {
     }
   }
 
+  // Слушатель клика избранного
   #handleFavoriteClick = (idx) => {
     const favFilm = this.#films.find((film) => film.idx === idx);
     favFilm.isFavorite = !favFilm.isFavorite;
   }
 
+  // Слушатель клика просмотренно
   #handleWatchedClick = (idx) => {
     const favFilm = this.#films.find((film) => film.idx === idx);
     favFilm.isWatched = !favFilm.isWatched;
   }
 
+  // Слушатель клика для добавления в список просмотренных
   #handleWatchlistClick = (idx) => {
     const favFilm = this.#films.find((film) => film.idx === idx);
     favFilm.isWatchlist = !favFilm.isWatchlist;
   }
 
+  // Слушатель для комментария клик по эмоджи
   #handleEmojiClick = (emoji) => {
     this.#activePopup.updateData({newComment: {emoji}});
+  }
+
+  // хрен пойми что!!!
+  #handleViewAction = (actionType, updateType, update) => {
+    console.log(actionType, updateType, update);
+    // Здесь будем вызывать обновление модели.
+    // actionType - действие пользователя, нужно чтобы понять, какой метод модели вызвать
+    // updateType - тип изменений, нужно чтобы понять, что после нужно обновить
+    // update - обновленные данные
+  }
+
+  // хрен пойми что!!!
+  #handleModelEvent = (updateType, data) => {
+    console.log(updateType, data);
+    // В зависимости от типа изменений решаем, что делать:
+    // - обновить часть списка (например, когда поменялось описание)
+    // - обновить список (например, когда задача ушла в архив)
+    // - обновить всю доску (например, при переключении фильтра)
   }
 }
