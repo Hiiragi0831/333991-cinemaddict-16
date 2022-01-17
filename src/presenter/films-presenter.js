@@ -1,10 +1,12 @@
 import FilmsSectionView, {FilmsSectionViewEmpty} from '../view/films-section-view';
-import SortLinksView, {SortType} from '../view/sort-view';
+import SortLinksView from '../view/sort-view';
 import {remove, render, RenderPosition} from '../render';
 import FilmCardView from '../view/film-view';
 import PopupCardView from '../view/film-details-view';
 import ButtonMoreView from '../view/more-views';
-import {sortByDate, sortByRating} from '../utils';
+import {filterFavoriteMovies, filterWatchedMovies, filterWatchingMovies, sortByDate, sortByRating} from '../utils';
+import {SortType, FilterType} from '../const';
+import SiteMenuView from '../view/site-menu-view';
 
 const FILM_COUNT_PER_STEP = 5;
 
@@ -13,31 +15,47 @@ export default class FilmsPresenter {
   #activePopup = null;
   #moviesModel = null;
   #commentsModel = null;
-
+  #filterModel = null;
   #filmsSectionComponent = new FilmsSectionView();
   #sortComponent = new SortLinksView();
+  #filtersComponent = new SiteMenuView();
   #noFilmsComponent = new FilmsSectionViewEmpty();
   #loadMoreButtonComponent = new ButtonMoreView();
   #films = [];
   #comments = [];
+  #watchMovies = [];
+  #watchedMovies = [];
+  #favoriteMovies = [];
   #renderedFilmCount = FILM_COUNT_PER_STEP;
   #filmPresenter = new Map();
   #currentSortType = SortType.DEFAULT;
 
   #createdFilms = [];
 
-  // что-то иницилизируем особенно не понятно зачем здесь модель?
-  constructor(filmsContainer, moviesModel, commentsModel) {
+  // сюда принимаем данные из моделей и записываем их в переменные презентера и с нимим работаем
+  constructor(filmsContainer, moviesModel, commentsModel, filterModel) {
     this.#filmsContainer = filmsContainer;
     this.#moviesModel = moviesModel;
     this.#commentsModel = commentsModel;
+    this.#filterModel = filterModel;
 
     this.#moviesModel.addObserver(this.#handleModelEvent);
     this.#commentsModel.addObserver(this.#handleModelEvent);
   }
 
-  // хрен пойми что!!! но как понял, это получить фильмы, но как эта шляпа работает не понятно
+  // получить фильмы с сортировкой
   get films() {
+    switch (this.#filterModel.currentFilter) {
+      case FilterType.WATCHLIST:
+        this.#films = filterWatchingMovies(this.#moviesModel.films);
+        return this.#films;
+      case FilterType.HISTORY:
+        this.#films = filterWatchedMovies(this.#moviesModel.films);
+        return this.#films;
+      case FilterType.FAVORITES:
+        this.#films = filterFavoriteMovies(this.#moviesModel.films);
+        return this.#films;
+    }
     switch (this.#currentSortType) {
       case SortType.DEFAULT:
         this.#films = this.#moviesModel.films;
@@ -56,11 +74,22 @@ export default class FilmsPresenter {
     this.#films = [...this.films];
     this.#comments = [...this.#commentsModel.comments];
 
+    this.#renderFiltersList();
     this.#renderSortList();
     this.#renderContainer();
   }
 
-  // Сортировка принимает в себя тип сортировки
+  #updateFilters = () => {
+    this.#watchMovies = filterWatchingMovies(this.#moviesModel.films);
+    this.#watchedMovies = filterWatchedMovies(this.#moviesModel.films);
+    this.#favoriteMovies = filterFavoriteMovies(this.#moviesModel.films);
+  }
+
+  // Сортировка принимает в себя тип сортировки;
+  // проверяем текуший тип соортировки если да то ничего не возврашаем;
+  // записываем в переменную кликнутый тип сортировки;
+  // очишаем фильмы;
+  // заново вызываем рендер контейнера;
   #handleSortTypeChange = (sortType) => {
     if (this.#currentSortType === sortType) {
       return;
@@ -75,6 +104,27 @@ export default class FilmsPresenter {
   #renderSortList = () => {
     render(this.#filmsContainer, this.#sortComponent, RenderPosition.BEFOREEND);
     this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
+  }
+
+  #handleFilterTypeChange = (filterType) => {
+    if (this.#filterModel.currentFilter === filterType) {
+      return;
+    }
+
+    this.#filterModel.currentFilter = filterType;
+    this.#clearFilmList();
+    this.#renderContainer();
+  }
+
+  #renderFiltersList = () => {
+    this.#updateFilters();
+
+    this.#filtersComponent.watchListCount = this.#watchMovies.length;
+    this.#filtersComponent.historyCount = this.#watchedMovies.length;
+    this.#filtersComponent.favoriteCount = this.#favoriteMovies.length;
+
+    render(this.#filmsContainer, this.#filtersComponent, RenderPosition.BEFOREEND);
+    this.#filtersComponent.setFilterTypeChangeHandler(this.#handleFilterTypeChange);
   }
 
   // Рендер 1 карточки фильма и создание попап компонента
@@ -104,7 +154,7 @@ export default class FilmsPresenter {
 
     render(filmsContainerElement, filmComponent, RenderPosition.BEFOREEND);
 
-    this.#filmPresenter.set(film.idx, this.#renderFilm);
+    this.#filmPresenter.set(film.id, this.#renderFilm);
     filmComponent.setFavoriteClickHandler(this.#handleFavoriteClick.bind(this));
     filmComponent.setWatchedClickHandler(this.#handleWatchedClick.bind(this));
     filmComponent.setWatchlistClickHandler(this.#handleWatchlistClick.bind(this));
@@ -187,20 +237,20 @@ export default class FilmsPresenter {
   }
 
   // Слушатель клика избранного
-  #handleFavoriteClick = (idx) => {
-    const favFilm = this.#films.find((film) => film.idx === idx);
+  #handleFavoriteClick = (id) => {
+    const favFilm = this.#films.find((film) => film.id === id);
     favFilm.isFavorite = !favFilm.isFavorite;
   }
 
   // Слушатель клика просмотренно
-  #handleWatchedClick = (idx) => {
-    const favFilm = this.#films.find((film) => film.idx === idx);
+  #handleWatchedClick = (id) => {
+    const favFilm = this.#films.find((film) => film.id === id);
     favFilm.isWatched = !favFilm.isWatched;
   }
 
   // Слушатель клика для добавления в список просмотренных
-  #handleWatchlistClick = (idx) => {
-    const favFilm = this.#films.find((film) => film.idx === idx);
+  #handleWatchlistClick = (id) => {
+    const favFilm = this.#films.find((film) => film.id === id);
     favFilm.isWatchlist = !favFilm.isWatchlist;
   }
 

@@ -9,8 +9,8 @@ import {
 } from './constants';
 import dayjs from 'dayjs';
 
-export const generateComment = (idx) => ({
-  idx,
+export const generateComment = (id) => ({
+  id,
   text: generateRandomMuchString(FILMS_DESCRIPTIONS, MAX_DESCRIPTIONS_COUNT),
   emotion: generateRandomString(COMMENTS_EMOTION),
   author: generateRandomString(COMMENTS_AUTHORS),

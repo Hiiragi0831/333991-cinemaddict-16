@@ -1,10 +1,5 @@
 import AbstractView from './abstract-view';
-
-export const SortType = {
-  DEFAULT: 'default',
-  RATING: 'rating',
-  DATE: 'date',
-};
+import {SortType} from '../const';
 
 const createSortLinksTemplate = () => (
   `<ul class="sort">

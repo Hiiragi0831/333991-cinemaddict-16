@@ -13,7 +13,7 @@ export default class MoviesModel extends AbstractObservable {
   }
 
   updateFilm = (updateType, update) => {
-    const index = this.#films.findIndex((film) => film.idx === update.idx);
+    const index = this.#films.findIndex((film) => film.id === update.id);
 
     if (index === -1) {
       throw new Error('Can\'t update unexisting film');

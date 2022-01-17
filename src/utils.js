@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import {END_DATE, MAX_GAP_MINUTES, MIN_GAP_MINUTES, START_DATE} from './mock/constants';
 import {generateComment} from './mock/comment';
+import {SortType} from './const';
 
 export const getRandomInteger = (a = 0, b = 1) => {
   const lower = Math.ceil(Math.min(a, b));
@@ -57,7 +58,7 @@ export function generateComments (arr) {
     const randNum = getRandomInteger(0, 5);
 
     for (let j = 0; j < randNum; j++) {
-      newArr.push(generateComment(arr[i].idx));
+      newArr.push(generateComment(arr[i].id));
     }
   }
   return newArr;
@@ -67,8 +68,12 @@ function byField(field) {
   return (a, b) => a[field] < b[field] ? 1 : -1;
 }
 
-export const sortByRating = (films) => films.sort(byField('rating'));
-export const sortByDate = (films) => films.sort(byField('date'));
+export const sortByRating = (films) => films.sort(byField(SortType.RATING));
+export const sortByDate = (films) => films.sort(byField(SortType.DATE));
+
+export const filterWatchingMovies = (films) => films.filter((film) => film.isWatchlist);
+export const filterWatchedMovies = (films) => films.filter((film) => film.isWatched);
+export const filterFavoriteMovies = (films) => films.filter((film) => film.isFavorite);
 
 // что и для чего?? судя по всему что-то за кем-то следит
 export default class AbstractObservable {

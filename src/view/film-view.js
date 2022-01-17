@@ -13,7 +13,7 @@ const createFilmCardTemplate = (film, comments) => {
   let commentsMove = 0;
 
   for (let i = 0; i < comments.length; i++) {
-    if (film.idx === comments[i].idx) {
+    if (film.id === comments[i].id) {
       commentsMove++;
     }
   }
@@ -82,19 +82,19 @@ export default class FilmCardView extends AbstractView {
 
   #favoriteClickHandler = (evt) => {
     evt.preventDefault();
-    this._callback.favoriteClick(this.#films.idx);
+    this._callback.favoriteClick(this.#films.id);
     evt.target.classList.toggle('film-card__controls-item--active');
   }
 
   #watchlistClickHandler = (evt) => {
     evt.preventDefault();
-    this._callback.WatchlistClick(this.#films.idx);
+    this._callback.WatchlistClick(this.#films.id);
     evt.target.classList.toggle('film-card__controls-item--active');
   }
 
   #watchedClickHandler = (evt) => {
     evt.preventDefault();
-    this._callback.WatchedClick(this.#films.idx);
+    this._callback.WatchedClick(this.#films.id);
     evt.target.classList.toggle('film-card__controls-item--active');
   }
 }
