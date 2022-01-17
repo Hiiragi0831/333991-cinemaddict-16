@@ -45,26 +45,28 @@ export default class FilmsPresenter {
 
   // получить фильмы с сортировкой
   get films() {
+    let movies = [...this.#moviesModel.films];
+
     switch (this.#filterModel.currentFilter) {
       case FilterType.WATCHLIST:
-        this.#films = filterWatchingMovies(this.#moviesModel.films);
-        return this.#films;
+        movies = filterWatchingMovies(movies);
+        break;
       case FilterType.HISTORY:
-        this.#films = filterWatchedMovies(this.#moviesModel.films);
-        return this.#films;
+        movies = filterWatchedMovies(movies);
+        break;
       case FilterType.FAVORITES:
-        this.#films = filterFavoriteMovies(this.#moviesModel.films);
-        return this.#films;
+        movies = filterFavoriteMovies(movies);
+        break;
     }
     switch (this.#currentSortType) {
       case SortType.DEFAULT:
-        this.#films = this.#moviesModel.films;
+        this.#films = movies;
         return this.#films;
       case SortType.DATE:
-        this.#films = sortByDate(this.#moviesModel.films);
+        this.#films = sortByDate(movies);
         return this.#films;
       case SortType.RATING:
-        this.#films = sortByRating(this.#moviesModel.films);
+        this.#films = sortByRating(movies);
         return this.#films;
     }
     return this.#moviesModel.films;
@@ -112,7 +114,9 @@ export default class FilmsPresenter {
     }
 
     this.#filterModel.currentFilter = filterType;
+    this.#currentSortType = SortType.DEFAULT;
     this.#clearFilmList();
+    this.#reloadFiltersList();
     this.#renderContainer();
   }
 
@@ -216,6 +220,11 @@ export default class FilmsPresenter {
     this.#createdFilms.forEach((film) => remove(film));
     remove(this.#loadMoreButtonComponent);
     this.#createdFilms = [];
+  }
+
+  #reloadFiltersList = () => {
+    remove(this.#sortComponent);
+    this.#renderSortList();
   }
 
   // Слушатель Escape
