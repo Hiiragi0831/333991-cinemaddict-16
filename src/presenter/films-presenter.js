@@ -45,7 +45,7 @@ export default class FilmsPresenter {
 
   // получить фильмы с сортировкой
   get films() {
-    let movies = [...this.#moviesModel.films];
+    let movies = this.#moviesModel.films;
 
     switch (this.#filterModel.currentFilter) {
       case FilterType.WATCHLIST:
@@ -69,7 +69,7 @@ export default class FilmsPresenter {
         this.#films = sortByRating(movies);
         return this.#films;
     }
-    return this.#moviesModel.films;
+    return movies;
   }
 
   init = () => {
@@ -79,12 +79,6 @@ export default class FilmsPresenter {
     this.#renderFiltersList();
     this.#renderSortList();
     this.#renderContainer();
-  }
-
-  #updateFilters = () => {
-    this.#watchMovies = filterWatchingMovies(this.#moviesModel.films);
-    this.#watchedMovies = filterWatchedMovies(this.#moviesModel.films);
-    this.#favoriteMovies = filterFavoriteMovies(this.#moviesModel.films);
   }
 
   // Сортировка принимает в себя тип сортировки;
@@ -102,12 +96,19 @@ export default class FilmsPresenter {
     this.#renderContainer();
   }
 
-  // Рендер списка сортировки
+  // рендер списка сортировки
+  // дергаем обработчик кликов
   #renderSortList = () => {
     render(this.#filmsContainer, this.#sortComponent, RenderPosition.BEFOREEND);
     this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
   }
 
+  // проверяем какой вид фильтра кликаем
+  // устанавливаем тип фильра на который кликнули
+  // сбрасываем тип сортировки
+  // очишаем список фильмов
+  // удаляем и заново рендерим список сортировки
+  // рендерим контейнер
   #handleFilterTypeChange = (filterType) => {
     if (this.#filterModel.currentFilter === filterType) {
       return;
@@ -115,11 +116,23 @@ export default class FilmsPresenter {
 
     this.#filterModel.currentFilter = filterType;
     this.#currentSortType = SortType.DEFAULT;
+
     this.#clearFilmList();
-    this.#reloadFiltersList();
+    this.#reloadSortList();
     this.#renderContainer();
   }
 
+  // записываем в переменные данные по условиям фильтрации
+  #updateFilters = () => {
+    this.#watchMovies = filterWatchingMovies(this.#films);
+    this.#watchedMovies = filterWatchedMovies(this.#films);
+    this.#favoriteMovies = filterFavoriteMovies(this.#films);
+  }
+
+  // дергаем функцию
+  // передаем данные о количестве фильмов в конкретной категории в модель
+  // рендерим меню
+  // вешаем обработчик событий клика
   #renderFiltersList = () => {
     this.#updateFilters();
 
@@ -127,11 +140,11 @@ export default class FilmsPresenter {
     this.#filtersComponent.historyCount = this.#watchedMovies.length;
     this.#filtersComponent.favoriteCount = this.#favoriteMovies.length;
 
-    render(this.#filmsContainer, this.#filtersComponent, RenderPosition.BEFOREEND);
+    render(this.#filmsContainer, this.#filtersComponent, RenderPosition.AFTERBEGIN);
     this.#filtersComponent.setFilterTypeChangeHandler(this.#handleFilterTypeChange);
   }
 
-  // Рендер 1 карточки фильма и создание попап компонента
+  // рендер 1 карточки фильма и создание попап компонента
   #renderFilm = (film, commentary) => {
     const filmComponent = new FilmCardView(film, commentary);
     const popupComponent = new PopupCardView(film, commentary);
@@ -170,9 +183,9 @@ export default class FilmsPresenter {
     this.#createdFilms = [...this.#createdFilms, ...this.#films.slice(from, to).map((film) => this.#renderFilm(film, this.#comments))];
   }
 
-  // Если фильмов нет то рендерим компонент с надписью пусто (Надо переделать на строку)
+  // Если фильмов нет, то рендерим компонент с надписью пусто (Надо переделать на строку)
   #renderNoFilms = () => {
-    render(this.#filmsContainer, this.#noFilmsComponent, RenderPosition.AFTEREND);
+    render(this.#filmsContainer, this.#noFilmsComponent, RenderPosition.BEFOREEND);
   }
 
   // Функция загрузки фильпов по клику
@@ -203,9 +216,17 @@ export default class FilmsPresenter {
     const filmsCount = this.films.length;
 
     if (filmsCount === 0) {
+      if (this.#filmsSectionComponent) {
+        remove(this.#filmsSectionComponent);
+      }
       this.#renderNoFilms();
       return;
     }
+
+    if (this.#noFilmsComponent) {
+      remove(this.#noFilmsComponent);
+    }
+
     render(this.#filmsContainer, this.#filmsSectionComponent, RenderPosition.BEFOREEND);
 
     this.#renderFilms(0, Math.min(filmsCount, this.#renderedFilmCount));
@@ -222,9 +243,23 @@ export default class FilmsPresenter {
     this.#createdFilms = [];
   }
 
-  #reloadFiltersList = () => {
+  #removeSortList = () => {
     remove(this.#sortComponent);
+  }
+
+  #removeFilterList = () => {
+    remove(this.#filtersComponent);
+  }
+
+  // очистка и рендер списка сортирровки
+  #reloadSortList = () => {
+    this.#removeSortList();
     this.#renderSortList();
+  }
+
+  #reloadFilterList = () => {
+    this.#removeFilterList();
+    this.#renderFiltersList();
   }
 
   // Слушатель Escape
@@ -249,32 +284,32 @@ export default class FilmsPresenter {
   #handleFavoriteClick = (id) => {
     const favFilm = this.#films.find((film) => film.id === id);
     favFilm.isFavorite = !favFilm.isFavorite;
+
+    this.#moviesModel.updateFilm('film FavoriteClick', favFilm);
+    this.#reloadFilterList();
   }
 
   // Слушатель клика просмотренно
   #handleWatchedClick = (id) => {
     const favFilm = this.#films.find((film) => film.id === id);
     favFilm.isWatched = !favFilm.isWatched;
+
+    this.#moviesModel.updateFilm('film WatchedClick', favFilm);
+    this.#reloadFilterList();
   }
 
   // Слушатель клика для добавления в список просмотренных
   #handleWatchlistClick = (id) => {
     const favFilm = this.#films.find((film) => film.id === id);
     favFilm.isWatchlist = !favFilm.isWatchlist;
+
+    this.#moviesModel.updateFilm('film WatchlistClick', favFilm);
+    this.#reloadFilterList();
   }
 
   // Слушатель для комментария клик по эмоджи
   #handleEmojiClick = (emoji) => {
     this.#activePopup.updateData({newComment: {emoji}});
-  }
-
-  // хрен пойми что!!!
-  #handleViewAction = (actionType, updateType, update) => {
-    console.log(actionType, updateType, update);
-    // Здесь будем вызывать обновление модели.
-    // actionType - действие пользователя, нужно чтобы понять, какой метод модели вызвать
-    // updateType - тип изменений, нужно чтобы понять, что после нужно обновить
-    // update - обновленные данные
   }
 
   // хрен пойми что!!!

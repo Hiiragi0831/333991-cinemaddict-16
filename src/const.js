@@ -25,3 +25,24 @@ export const FilterType = {
   FAVORITES: 'favorites',
   STATS: 'stats',
 };
+
+export const EMPTY_MOVIE = {
+  id: '',
+  title: '',
+  date: '',
+  description: '',
+  runTime: '',
+  genres: '',
+  genresOne: '',
+  isWatchlist: false,
+  isWatched: false,
+  isFavorite: false,
+  image: '',
+  rating: '',
+  writers: '',
+  director: '',
+  actors: '',
+  country: '',
+  age: '',
+  newComment: '',
+};
