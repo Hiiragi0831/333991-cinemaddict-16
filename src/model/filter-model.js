@@ -6,6 +6,7 @@ export default class FilterModel extends AbstractObservable {
 
   set currentFilter(currentFilter) {
     this.#currentFilter = currentFilter;
+    console.log(currentFilter);
   }
 
   get currentFilter() {

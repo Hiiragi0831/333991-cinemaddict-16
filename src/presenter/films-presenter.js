@@ -69,7 +69,7 @@ export default class FilmsPresenter {
         this.#films = sortByRating(movies);
         return this.#films;
     }
-    return movies;
+    return this.#films;
   }
 
   init = () => {
@@ -110,6 +110,7 @@ export default class FilmsPresenter {
   // удаляем и заново рендерим список сортировки
   // рендерим контейнер
   #handleFilterTypeChange = (filterType) => {
+    console.log(filterType);
     if (this.#filterModel.currentFilter === filterType) {
       return;
     }
@@ -124,9 +125,9 @@ export default class FilmsPresenter {
 
   // записываем в переменные данные по условиям фильтрации
   #updateFilters = () => {
-    this.#watchMovies = filterWatchingMovies(this.#films);
-    this.#watchedMovies = filterWatchedMovies(this.#films);
-    this.#favoriteMovies = filterFavoriteMovies(this.#films);
+    this.#watchMovies = filterWatchingMovies(this.#moviesModel.films);
+    this.#watchedMovies = filterWatchedMovies(this.#moviesModel.films);
+    this.#favoriteMovies = filterFavoriteMovies(this.#moviesModel.films);
   }
 
   // дергаем функцию
@@ -147,24 +148,14 @@ export default class FilmsPresenter {
   // рендер 1 карточки фильма и создание попап компонента
   #renderFilm = (film, commentary) => {
     const filmComponent = new FilmCardView(film, commentary);
-    const popupComponent = new PopupCardView(film, commentary);
     const filmsContainerElement = this.#filmsSectionComponent.element.querySelector('.films-list__container');
-
-    const createPopup = () => {
-      render(this.#filmsContainer, popupComponent, RenderPosition.AFTEREND);
-      document.querySelector('body').classList.add('hide-overflow');
-      this.#activePopup = popupComponent;
-      popupComponent.setFavoriteClickHandler(this.#handleFavoriteClick.bind(this));
-      popupComponent.setWatchedClickHandler(this.#handleWatchedClick.bind(this));
-      popupComponent.setWatchlistClickHandler(this.#handleWatchlistClick.bind(this));
-      popupComponent.setEmojiClickHandler(this.#handleEmojiClick.bind(this));
-    };
 
     filmComponent.element.querySelector('.film-card__link').addEventListener(('click'), () => {
       if (this.#activePopup) {
         remove(this.#activePopup);
       }
-      createPopup();
+
+      this.#createPopup(film, commentary);
       document.addEventListener('keydown', this.#escKeyDownHandler);
       document.addEventListener('click', this.#closeButton);
     });
@@ -176,6 +167,18 @@ export default class FilmsPresenter {
     filmComponent.setWatchedClickHandler(this.#handleWatchedClick.bind(this));
     filmComponent.setWatchlistClickHandler(this.#handleWatchlistClick.bind(this));
     return filmComponent;
+  }
+
+  #createPopup = (film, commentary) => {
+    const popupComponent = new PopupCardView(film, commentary);
+
+    render(this.#filmsContainer, popupComponent, RenderPosition.AFTEREND);
+    document.querySelector('body').classList.add('hide-overflow');
+    this.#activePopup = popupComponent;
+    popupComponent.setFavoriteClickHandler(this.#handleFavoriteClick.bind(this));
+    popupComponent.setWatchedClickHandler(this.#handleWatchedClick.bind(this));
+    popupComponent.setWatchlistClickHandler(this.#handleWatchlistClick.bind(this));
+    popupComponent.setEmojiClickHandler(this.#handleEmojiClick.bind(this));
   }
 
   // Проходимся по циклу
@@ -282,29 +285,35 @@ export default class FilmsPresenter {
 
   // Слушатель клика избранного
   #handleFavoriteClick = (id) => {
-    const favFilm = this.#films.find((film) => film.id === id);
-    favFilm.isFavorite = !favFilm.isFavorite;
+    const findFilm = this.#films.find((film) => film.id === id);
+    findFilm.isFavorite = !findFilm.isFavorite;
 
-    this.#moviesModel.updateFilm('film FavoriteClick', favFilm);
+    this.#moviesModel.updateFilm('film FavoriteClick', findFilm);
     this.#reloadFilterList();
+    this.#clearFilmList();
+    this.#renderContainer();
   }
 
   // Слушатель клика просмотренно
   #handleWatchedClick = (id) => {
-    const favFilm = this.#films.find((film) => film.id === id);
-    favFilm.isWatched = !favFilm.isWatched;
+    const findFilm = this.#films.find((film) => film.id === id);
+    findFilm.isWatched = !findFilm.isWatched;
 
-    this.#moviesModel.updateFilm('film WatchedClick', favFilm);
+    this.#moviesModel.updateFilm('film WatchedClick', findFilm);
     this.#reloadFilterList();
+    this.#clearFilmList();
+    this.#renderContainer();
   }
 
   // Слушатель клика для добавления в список просмотренных
   #handleWatchlistClick = (id) => {
-    const favFilm = this.#films.find((film) => film.id === id);
-    favFilm.isWatchlist = !favFilm.isWatchlist;
+    const findFilm = this.#films.find((film) => film.id === id);
+    findFilm.isWatchlist = !findFilm.isWatchlist;
 
-    this.#moviesModel.updateFilm('film WatchlistClick', favFilm);
+    this.#moviesModel.updateFilm('film WatchlistClick', findFilm);
     this.#reloadFilterList();
+    this.#clearFilmList();
+    this.#renderContainer();
   }
 
   // Слушатель для комментария клик по эмоджи

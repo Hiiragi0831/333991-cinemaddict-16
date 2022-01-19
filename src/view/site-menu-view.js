@@ -13,14 +13,12 @@ const createSiteMenuTemplate = (watchListCount, historyCount, favoriteCount)  =>
   </nav>`);
 
 export default class SiteMenuView extends AbstractView {
-  #films = null;
   #watchListCount = 0;
   #historyCount = 0;
   #favoriteCount = 0;
-  #activeButton = FilterType.All;
 
   get template() {
-    return createSiteMenuTemplate(this.#watchListCount, this.#historyCount, this.#favoriteCount, this.#activeButton);
+    return createSiteMenuTemplate(this.#watchListCount, this.#historyCount, this.#favoriteCount);
   }
 
   get watchListCount() {
