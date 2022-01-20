@@ -15,13 +15,14 @@ export default class CommentsModel extends AbstractObservable {
   addComment = (comment) => {
     this.#comments.push({
       id: comment.id,
+      filmId: comment.filmId,
       text: comment.text,
       emotion: comment.emotion,
       author: comment.author,
       date: comment.date,
     });
 
-    this._notify();
+    this._notify('add comment', comment);
   }
 
   deleteComment = (commentId) => {
@@ -36,6 +37,6 @@ export default class CommentsModel extends AbstractObservable {
       ...this.#comments.slice(index + 1)
     ];
 
-    this._notify('add comment', commentId);
+    this._notify('delete comment', commentId);
   }
 }

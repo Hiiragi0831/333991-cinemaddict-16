@@ -18,7 +18,7 @@ export default class FilmsPresenter {
   #filterModel = null;
   #filmsSectionComponent = new FilmsSectionView();
   #sortComponent = new SortLinksView();
-  #filtersComponent = new SiteMenuView();
+  #filtersComponent = null;
   #noFilmsComponent = new FilmsSectionViewEmpty();
   #loadMoreButtonComponent = new ButtonMoreView();
   #films = [];
@@ -38,6 +38,7 @@ export default class FilmsPresenter {
     this.#moviesModel = moviesModel;
     this.#commentsModel = commentsModel;
     this.#filterModel = filterModel;
+    this.#filtersComponent = new SiteMenuView(this.#filterModel);
 
     this.#moviesModel.addObserver(this.#handleModelEvent);
     this.#commentsModel.addObserver(this.#handleModelEvent);
@@ -96,21 +97,20 @@ export default class FilmsPresenter {
     this.#renderContainer();
   }
 
-  // рендер списка сортировки
-  // дергаем обработчик кликов
+  // рендер списка сортировки;
+  // дергаем обработчик кликов;
   #renderSortList = () => {
     render(this.#filmsContainer, this.#sortComponent, RenderPosition.BEFOREEND);
     this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
   }
 
-  // проверяем какой вид фильтра кликаем
-  // устанавливаем тип фильра на который кликнули
-  // сбрасываем тип сортировки
-  // очишаем список фильмов
-  // удаляем и заново рендерим список сортировки
-  // рендерим контейнер
+  // проверяем какой вид фильтра кликаем;
+  // устанавливаем тип фильра на который кликнули;
+  // сбрасываем тип сортировки;
+  // очишаем список фильмов;
+  // удаляем и заново рендерим список сортировки;
+  // рендерим контейнер;
   #handleFilterTypeChange = (filterType) => {
-    console.log(filterType);
     if (this.#filterModel.currentFilter === filterType) {
       return;
     }
@@ -123,17 +123,17 @@ export default class FilmsPresenter {
     this.#renderContainer();
   }
 
-  // записываем в переменные данные по условиям фильтрации
+  // записываем в переменные данные по условиям фильтрации;
   #updateFilters = () => {
     this.#watchMovies = filterWatchingMovies(this.#moviesModel.films);
     this.#watchedMovies = filterWatchedMovies(this.#moviesModel.films);
     this.#favoriteMovies = filterFavoriteMovies(this.#moviesModel.films);
   }
 
-  // дергаем функцию
-  // передаем данные о количестве фильмов в конкретной категории в модель
-  // рендерим меню
-  // вешаем обработчик событий клика
+  // дергаем функцию;
+  // передаем данные о количестве фильмов в конкретной категории в модель;
+  // рендерим меню;
+  // вешаем обработчик событий клика;
   #renderFiltersList = () => {
     this.#updateFilters();
 
@@ -145,7 +145,7 @@ export default class FilmsPresenter {
     this.#filtersComponent.setFilterTypeChangeHandler(this.#handleFilterTypeChange);
   }
 
-  // рендер 1 карточки фильма и создание попап компонента
+  // рендер 1 карточки фильма и создание попап компонента;
   #renderFilm = (film, commentary) => {
     const filmComponent = new FilmCardView(film, commentary);
     const filmsContainerElement = this.#filmsSectionComponent.element.querySelector('.films-list__container');
@@ -179,6 +179,8 @@ export default class FilmsPresenter {
     popupComponent.setWatchedClickHandler(this.#handleWatchedClick.bind(this));
     popupComponent.setWatchlistClickHandler(this.#handleWatchlistClick.bind(this));
     popupComponent.setEmojiClickHandler(this.#handleEmojiClick.bind(this));
+    popupComponent.setDeleteClickHandler(this.#deleteComment.bind(this));
+    popupComponent.setAddCommentClickHandler(this.#addComment.bind(this));
   }
 
   // Проходимся по циклу
@@ -287,7 +289,7 @@ export default class FilmsPresenter {
   #handleFavoriteClick = (id) => {
     const findFilm = this.#films.find((film) => film.id === id);
     findFilm.isFavorite = !findFilm.isFavorite;
-
+    this.#activePopup.updateData(findFilm);
     this.#moviesModel.updateFilm('film FavoriteClick', findFilm);
     this.#reloadFilterList();
     this.#clearFilmList();
@@ -298,7 +300,7 @@ export default class FilmsPresenter {
   #handleWatchedClick = (id) => {
     const findFilm = this.#films.find((film) => film.id === id);
     findFilm.isWatched = !findFilm.isWatched;
-
+    this.#activePopup.updateData(findFilm);
     this.#moviesModel.updateFilm('film WatchedClick', findFilm);
     this.#reloadFilterList();
     this.#clearFilmList();
@@ -309,11 +311,28 @@ export default class FilmsPresenter {
   #handleWatchlistClick = (id) => {
     const findFilm = this.#films.find((film) => film.id === id);
     findFilm.isWatchlist = !findFilm.isWatchlist;
-
+    this.#activePopup.updateData(findFilm);
     this.#moviesModel.updateFilm('film WatchlistClick', findFilm);
     this.#reloadFilterList();
     this.#clearFilmList();
     this.#renderContainer();
+  }
+
+  #deleteComment = (id) => {
+    const findComment = this.#comments.find((comment) => comment.id === id);
+    const findFilm = this.#films.find((film) => film.id === findComment.filmId);
+    this.#commentsModel.deleteComment(findComment.id);
+    this.#activePopup.updateData(findFilm, findComment);
+    this.#moviesModel.updateFilm('film deleteComment', findFilm);
+    this.#reloadFilterList();
+    this.#clearFilmList();
+    this.#renderContainer();
+  }
+
+  #addComment = (id) => {
+    const findFilm = this.#films.find((film) => film.id === id);
+    console.log(findFilm);
+    console.log(id);
   }
 
   // Слушатель для комментария клик по эмоджи

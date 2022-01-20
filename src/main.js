@@ -1,5 +1,4 @@
 import ProfileSectionView from './view/profile-view.js';
-import SiteMenuView from './view/site-menu-view.js';
 import FooterStatisticsView from './view/statistics-view.js';
 import {RenderPosition, render} from './render.js';
 import {generateMovie} from './mock/movie.js';

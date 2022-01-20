@@ -13,7 +13,7 @@ const createFilmCardTemplate = (film, comments) => {
   let commentsMove = 0;
 
   for (let i = 0; i < comments.length; i++) {
-    if (film.id === comments[i].id) {
+    if (film.id === comments[i].filmId) {
       commentsMove++;
     }
   }
