@@ -1,12 +1,11 @@
 import SmartView from './smart-view';
 import he from 'he';
+import dayjs from 'dayjs';
 
-const createPopupTemplate = (film, comments) => {
-  const {title, description, date, rating, runTime, genres, image, isWatchlist, isWatched, isFavorite, age, writers, actors, country, director, newComment} = film;
-
-  const watchlistClassName = isWatchlist ? 'film-details__control-button--active' : '';
-  const watchedClassName = isWatched ? 'film-details__control-button--active' : '';
-  const favoriteClassName = isFavorite ? 'film-details__control-button--active' : '';
+const createPopupTemplate = (film, comments, currentEmoji, currentText) => {
+  const watchlistClassName = film.isWatchlist ? 'film-details__control-button--active' : '';
+  const watchedClassName = film.isWatched ? 'film-details__control-button--active' : '';
+  const favoriteClassName = film.isFavorite ? 'film-details__control-button--active' : '';
 
   const commentsMove = [];
 
@@ -20,9 +19,9 @@ const createPopupTemplate = (film, comments) => {
         <img src="./images/emoji/${comment.emotion}.png" width="55" height="55" alt="emoji-smile">
       </span>
       <div>
-        <p class="film-details__comment-text">${comment.text}</p>
+        <p class="film-details__comment-text">${he.encode(comment.text)}</p>
         <p class="film-details__comment-info">
-          <span class="film-details__comment-author">${comment.author}</span>
+          <span class="film-details__comment-author">${he.encode(comment.author)}</span>
           <span class="film-details__comment-day">${comment.date.format('DD/MM/YYYY HH:mm')}</span>
           <button class="film-details__comment-delete" data-id="${comment.id}">Delete</button>
         </p>
@@ -44,58 +43,58 @@ const createPopupTemplate = (film, comments) => {
         </div>
         <div class="film-details__info-wrap">
           <div class="film-details__poster">
-            <img class="film-details__poster-img" src="${image}" alt="${title}">
+            <img class="film-details__poster-img" src="${film.image}" alt="${film.title}">
 
-            <p class="film-details__age">${age}+</p>
+            <p class="film-details__age">${film.age}+</p>
           </div>
 
           <div class="film-details__info">
             <div class="film-details__info-head">
               <div class="film-details__title-wrap">
-                <h3 class="film-details__title">${title}</h3>
-                <p class="film-details__title-original">Original: ${title}</p>
+                <h3 class="film-details__title">${film.title}</h3>
+                <p class="film-details__title-original">Original: ${film.title}</p>
               </div>
 
               <div class="film-details__rating">
-                <p class="film-details__total-rating">${rating}</p>
+                <p class="film-details__total-rating">${film.rating}</p>
               </div>
             </div>
 
             <table class="film-details__table">
               <tr class="film-details__row">
                 <td class="film-details__term">Director</td>
-                <td class="film-details__cell">${director}</td>
+                <td class="film-details__cell">${film.director}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Writers</td>
-                <td class="film-details__cell">${writers}</td>
+                <td class="film-details__cell">${film.writers}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Actors</td>
-                <td class="film-details__cell">${actors}</td>
+                <td class="film-details__cell">${film.actors}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Release Date</td>
-                <td class="film-details__cell">${date.format('DD MMMM YYYY')}</td>
+                <td class="film-details__cell">${film.date.format('DD MMMM YYYY')}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Runtime</td>
-                <td class="film-details__cell">${runTime}</td>
+                <td class="film-details__cell">${film.runTime}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Country</td>
-                <td class="film-details__cell">${country}</td>
+                <td class="film-details__cell">${film.country}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Genres</td>
                 <td class="film-details__cell">
-                  ${createGenreTemplate(genres)}
+                  ${createGenreTemplate(film.genres)}
                 </td>
               </tr>
             </table>
 
             <p class="film-details__film-description">
-              ${description}
+              ${film.description}
             </p>
           </div>
         </div>
@@ -117,30 +116,30 @@ const createPopupTemplate = (film, comments) => {
 
           <div class="film-details__new-comment">
             <div class="film-details__add-emoji-label">
-                ${newComment.emoji ? `<img src="./images/emoji/${newComment.emoji}.png" width="71" height="71" alt="emoji" data-emoji="smile">` : ''}
+                ${currentEmoji ? `<img src="./images/emoji/${currentEmoji}.png" width="71" height="71" alt="emoji" data-emoji="smile">` : ''}
             </div>
 
             <label class="film-details__comment-label">
-              <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>
+              <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment">${he.encode(currentText)}</textarea>
             </label>
 
             <div class="film-details__emoji-list">
-              <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-smile" value="smile" ${newComment.emoji === 'smile' ? 'checked' : ''}>
+              <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-smile" value="smile" ${currentEmoji === 'smile' ? 'checked' : ''}>
               <label class="film-details__emoji-label" for="emoji-smile">
                 <img src="./images/emoji/smile.png" width="30" height="30" alt="emoji" data-emoji="smile">
               </label>
 
-              <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-sleeping" value="sleeping" ${newComment.emoji === 'sleeping' ? 'checked' : ''}>
+              <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-sleeping" value="sleeping" ${currentEmoji === 'sleeping' ? 'checked' : ''}>
               <label class="film-details__emoji-label" for="emoji-sleeping">
                 <img src="./images/emoji/sleeping.png" width="30" height="30" alt="emoji" data-emoji="sleeping">
               </label>
 
-              <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-puke" value="puke" ${newComment.emoji === 'puke' ? 'checked' : ''}>
+              <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-puke" value="puke" ${currentEmoji === 'puke' ? 'checked' : ''}>
               <label class="film-details__emoji-label" for="emoji-puke">
                 <img src="./images/emoji/puke.png" width="30" height="30" alt="emoji" data-emoji="puke">
               </label>
 
-              <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-angry" value="angry" ${newComment.emoji === 'angry' ? 'checked' : ''}>
+              <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-angry" value="angry" ${currentEmoji === 'angry' ? 'checked' : ''}>
               <label class="film-details__emoji-label" for="emoji-angry">
                 <img src="./images/emoji/angry.png" width="30" height="30" alt="emoji" data-emoji="angry">
               </label>
@@ -155,6 +154,7 @@ const createPopupTemplate = (film, comments) => {
 export default class PopupCardView extends SmartView {
   #films = null;
   #comments = null;
+  #currentEmoji = null;
   #currentText = '';
 
   constructor(films, comments) {
@@ -163,22 +163,37 @@ export default class PopupCardView extends SmartView {
     this.#comments = comments;
   }
 
+  get comments() {
+    return this.#comments;
+  }
+
+  set comments(comments) {
+    this.#comments = comments;
+  }
+
   get template() {
-    return createPopupTemplate(this.#films, this.#comments);
+    return createPopupTemplate(this.#films, this.#comments, this.#currentEmoji, this.#currentText);
   }
 
   updateData = (filmUpdate, commentsUpdate) => {
     if (!filmUpdate && !commentsUpdate) {
       return;
     }
+
     if (filmUpdate) {
       this.#films = {...this.#films, ...filmUpdate};
     }
+
     if (commentsUpdate) {
-      this.#comments = {...this.#comments, ...commentsUpdate};
+      this.#comments = commentsUpdate;
     }
 
     this.updateElement();
+  }
+
+  resetData = () => {
+    this.#currentEmoji = null;
+    this.#currentText = '';
   }
 
   restoreHandlers = () => {
@@ -240,17 +255,17 @@ export default class PopupCardView extends SmartView {
 
   #emojiClickHandler = (evt) => {
     evt.preventDefault();
-    let selectedEmoji = null;
 
     if (evt.target.tagName === 'IMG') {
-      selectedEmoji = evt.target.dataset.emoji;
+      this.#currentEmoji = evt.target.dataset.emoji;
     }
 
-    this._callback.EmojiClick(selectedEmoji);
+    this._callback.EmojiClick(this.#currentEmoji);
   }
 
   #deleteCommentClickHandler = (evt) => {
     evt.preventDefault();
+
     if (evt.target.tagName === 'BUTTON') {
       this._callback.DeleteClick(evt.target.dataset.id);
     }
@@ -261,11 +276,19 @@ export default class PopupCardView extends SmartView {
 
     if (currentInput) {
       this.#currentText = currentInput.value;
-      // console.log(this.#currentText);
-    }
 
-    if (evt.ctrlKey && evt.key === 'Enter') {
-      this._callback.AddComment(evt.target.value);
+      if (evt.ctrlKey && evt.key === 'Enter') {
+        const newComment = {
+          id: Math.random().toString(10).substr(2, 9),
+          filmId: this.#films.id,
+          text: this.#currentText,
+          emotion: this.#currentEmoji || 'smile',
+          author: 'Jon Doe',
+          date: dayjs(new Date()),
+        };
+        this.resetData();
+        this._callback.AddComment(newComment);
+      }
     }
   }
 }

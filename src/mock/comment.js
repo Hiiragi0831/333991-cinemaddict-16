@@ -14,7 +14,7 @@ export const generateComment = (filmId) => {
   return {
     id,
     filmId,
-    text: generateRandomMuchString(FILMS_DESCRIPTIONS, MAX_DESCRIPTIONS_COUNT),
+    text: generateRandomMuchString(FILMS_DESCRIPTIONS, MAX_DESCRIPTIONS_COUNT).join(', '),
     emotion: generateRandomString(COMMENTS_EMOTION),
     author: generateRandomString(COMMENTS_AUTHORS),
     date: dayjs(getRandomDate(START_DATE, END_DATE)),

@@ -318,21 +318,31 @@ export default class FilmsPresenter {
     this.#renderContainer();
   }
 
+  // this.#comments => this.#commentsModel.comments
   #deleteComment = (id) => {
     const findComment = this.#comments.find((comment) => comment.id === id);
     const findFilm = this.#films.find((film) => film.id === findComment.filmId);
     this.#commentsModel.deleteComment(findComment.id);
-    this.#activePopup.updateData(findFilm, findComment);
+    this.#comments = this.#commentsModel.comments;
+
+    this.#activePopup.updateData(findFilm, this.#commentsModel.comments);
     this.#moviesModel.updateFilm('film deleteComment', findFilm);
     this.#reloadFilterList();
     this.#clearFilmList();
     this.#renderContainer();
   }
 
-  #addComment = (id) => {
-    const findFilm = this.#films.find((film) => film.id === id);
-    console.log(findFilm);
-    console.log(id);
+  #addComment = (newComment) => {
+    this.#commentsModel.addComment(newComment);
+    const findComment = this.#commentsModel.comments.find((comment) => comment.id === newComment.id);
+    const findFilm = this.#films.find((film) => film.id === findComment.filmId);
+    this.#comments = this.#commentsModel.comments;
+
+    this.#activePopup.updateData(findFilm, this.#commentsModel.comments);
+    this.#moviesModel.updateFilm('film add Comment', findFilm);
+    this.#reloadFilterList();
+    this.#clearFilmList();
+    this.#renderContainer();
   }
 
   // Слушатель для комментария клик по эмоджи
