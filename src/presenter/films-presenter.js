@@ -22,7 +22,6 @@ export default class FilmsPresenter {
   #noFilmsComponent = new FilmsSectionViewEmpty();
   #loadMoreButtonComponent = new ButtonMoreView();
   #films = [];
-  #comments = [];
   #watchMovies = [];
   #watchedMovies = [];
   #favoriteMovies = [];
@@ -75,7 +74,6 @@ export default class FilmsPresenter {
 
   init = () => {
     this.#films = [...this.films];
-    this.#comments = [...this.#commentsModel.comments];
 
     this.#renderFiltersList();
     this.#renderSortList();
@@ -185,7 +183,7 @@ export default class FilmsPresenter {
 
   // Проходимся по циклу
   #renderFilms = (from, to) => {
-    this.#createdFilms = [...this.#createdFilms, ...this.#films.slice(from, to).map((film) => this.#renderFilm(film, this.#comments))];
+    this.#createdFilms = [...this.#createdFilms, ...this.#films.slice(from, to).map((film) => this.#renderFilm(film, this.#commentsModel.comments))];
   }
 
   // Если фильмов нет, то рендерим компонент с надписью пусто (Надо переделать на строку)
@@ -320,10 +318,10 @@ export default class FilmsPresenter {
 
   // this.#comments => this.#commentsModel.comments
   #deleteComment = (id) => {
-    const findComment = this.#comments.find((comment) => comment.id === id);
+    const findComment = this.#commentsModel.comments.find((comment) => comment.id === id);
     const findFilm = this.#films.find((film) => film.id === findComment.filmId);
     this.#commentsModel.deleteComment(findComment.id);
-    this.#comments = this.#commentsModel.comments;
+    // this.#comments = this.#commentsModel.comments;
 
     this.#activePopup.updateData(findFilm, this.#commentsModel.comments);
     this.#moviesModel.updateFilm('film deleteComment', findFilm);
@@ -336,7 +334,7 @@ export default class FilmsPresenter {
     this.#commentsModel.addComment(newComment);
     const findComment = this.#commentsModel.comments.find((comment) => comment.id === newComment.id);
     const findFilm = this.#films.find((film) => film.id === findComment.filmId);
-    this.#comments = this.#commentsModel.comments;
+    // this.#comments = this.#commentsModel.comments;
 
     this.#activePopup.updateData(findFilm, this.#commentsModel.comments);
     this.#moviesModel.updateFilm('film add Comment', findFilm);

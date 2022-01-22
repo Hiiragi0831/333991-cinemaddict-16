@@ -232,7 +232,7 @@ export default class PopupCardView extends SmartView {
 
   setAddCommentClickHandler = (callback) => {
     this._callback.AddComment = callback;
-    this.element.querySelector('.film-details__comment-input').addEventListener('keydown', this.#addCommentClickHandler);
+    this.element.querySelector('.film-details__comment-input').addEventListener('keyup', this.#addCommentClickHandler);
   }
 
   #favoriteClickHandler = (evt) => {
