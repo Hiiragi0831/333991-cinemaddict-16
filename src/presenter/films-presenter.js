@@ -7,6 +7,7 @@ import ButtonMoreView from '../view/more-views';
 import {filterFavoriteMovies, filterWatchedMovies, filterWatchingMovies, sortByDate, sortByRating} from '../utils';
 import {SortType, FilterType} from '../const';
 import SiteMenuView from '../view/site-menu-view';
+import StatsView from '../view/stats-view';
 
 const FILM_COUNT_PER_STEP = 5;
 
@@ -16,6 +17,7 @@ export default class FilmsPresenter {
   #moviesModel = null;
   #commentsModel = null;
   #filterModel = null;
+  #statsView = null;
   #filmsSectionComponent = new FilmsSectionView();
   #sortComponent = new SortLinksView();
   #filtersComponent = null;
@@ -56,6 +58,8 @@ export default class FilmsPresenter {
         break;
       case FilterType.FAVORITES:
         movies = filterFavoriteMovies(movies);
+        break;
+      case FilterType.STATS:
         break;
     }
     switch (this.#currentSortType) {
@@ -228,6 +232,19 @@ export default class FilmsPresenter {
 
     if (this.#noFilmsComponent) {
       remove(this.#noFilmsComponent);
+    }
+
+    if (this.#statsView) {
+      this.#statsView.removeElement();
+    }
+
+    if (this.#filterModel.currentFilter === FilterType.STATS) {
+      remove(this.#filmsSectionComponent);
+      remove(this.#sortComponent);
+      this.#statsView = new StatsView(this.#watchedMovies);
+      render(this.#filmsContainer, this.#statsView, RenderPosition.BEFOREEND);
+      this.#statsView.updateElement();
+      return;
     }
 
     render(this.#filmsContainer, this.#filmsSectionComponent, RenderPosition.BEFOREEND);

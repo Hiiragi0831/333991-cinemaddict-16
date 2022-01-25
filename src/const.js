@@ -26,23 +26,17 @@ export const FilterType = {
   STATS: 'stats',
 };
 
-export const EMPTY_MOVIE = {
-  id: '',
-  title: '',
-  date: '',
-  description: '',
-  runTime: '',
-  genres: '',
-  genresOne: '',
-  isWatchlist: false,
-  isWatched: false,
-  isFavorite: false,
-  image: '',
-  rating: '',
-  writers: '',
-  director: '',
-  actors: '',
-  country: '',
-  age: '',
-  newComment: '',
+export const TimeUnits = {
+  DAY: 'day',
+  WEEK: 'week',
+  MONTH: 'month',
+  YEAR: 'year',
+};
+
+export const FilterStats = {
+  All: 'all',
+  TODAY: 'today',
+  WEEK: 'week',
+  MONTH: 'month',
+  YEAR: 'year',
 };

@@ -26,6 +26,8 @@
     "node": "16"
   },
   "dependencies": {
+    "chart.js": "^3.7.0",
+    "chartjs-plugin-datalabels": "^2.0.0",
     "dayjs": "^1.10.7",
     "he": "^1.2.0"
   }

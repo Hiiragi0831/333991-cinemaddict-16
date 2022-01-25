@@ -22,7 +22,23 @@ export default class AbstractView {
     throw new Error('Abstract method not implemented: get template');
   }
 
-  removeElement() {
-    this.#element = null;
+  replaceElement = () => {
+    if (this.#element && this.#element.parentElement) {
+      const prevElement = this.#element;
+      const parent = prevElement.parentElement;
+
+      this.#element = null;
+
+      const newElement = this.element;
+
+      parent.replaceChild(newElement, prevElement);
+    }
+  }
+
+  removeElement = () => {
+    if (this.#element) {
+      this.#element.remove();
+      this.#element = null;
+    }
   }
 }
