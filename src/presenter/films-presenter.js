@@ -287,7 +287,7 @@ export default class FilmsPresenter {
   #handleFavoriteClick = (id) => {
     const findFilm = this.#films.find((film) => film.id === id);
     findFilm.isFavorite = !findFilm.isFavorite;
-    this.#activePopup.updateData(findFilm);
+    this.#activePopup.updateData(findFilm, this.#commentsModel.comments);
     this.#moviesModel.updateFilm('film FavoriteClick', findFilm);
     this.#reloadFilterList();
     this.#clearFilmList();
@@ -298,7 +298,7 @@ export default class FilmsPresenter {
   #handleWatchedClick = (id) => {
     const findFilm = this.#films.find((film) => film.id === id);
     findFilm.isWatched = !findFilm.isWatched;
-    this.#activePopup.updateData(findFilm);
+    this.#activePopup.updateData(findFilm, this.#commentsModel.comments);
     this.#moviesModel.updateFilm('film WatchedClick', findFilm);
     this.#reloadFilterList();
     this.#clearFilmList();
@@ -309,20 +309,17 @@ export default class FilmsPresenter {
   #handleWatchlistClick = (id) => {
     const findFilm = this.#films.find((film) => film.id === id);
     findFilm.isWatchlist = !findFilm.isWatchlist;
-    this.#activePopup.updateData(findFilm);
+    this.#activePopup.updateData(findFilm, this.#commentsModel.comments);
     this.#moviesModel.updateFilm('film WatchlistClick', findFilm);
     this.#reloadFilterList();
     this.#clearFilmList();
     this.#renderContainer();
   }
 
-  // this.#comments => this.#commentsModel.comments
   #deleteComment = (id) => {
     const findComment = this.#commentsModel.comments.find((comment) => comment.id === id);
     const findFilm = this.#films.find((film) => film.id === findComment.filmId);
     this.#commentsModel.deleteComment(findComment.id);
-    // this.#comments = this.#commentsModel.comments;
-
     this.#activePopup.updateData(findFilm, this.#commentsModel.comments);
     this.#moviesModel.updateFilm('film deleteComment', findFilm);
     this.#reloadFilterList();
@@ -334,8 +331,6 @@ export default class FilmsPresenter {
     this.#commentsModel.addComment(newComment);
     const findComment = this.#commentsModel.comments.find((comment) => comment.id === newComment.id);
     const findFilm = this.#films.find((film) => film.id === findComment.filmId);
-    // this.#comments = this.#commentsModel.comments;
-
     this.#activePopup.updateData(findFilm, this.#commentsModel.comments);
     this.#moviesModel.updateFilm('film add Comment', findFilm);
     this.#reloadFilterList();
