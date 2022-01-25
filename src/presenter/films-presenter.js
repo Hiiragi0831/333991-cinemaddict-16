@@ -304,7 +304,9 @@ export default class FilmsPresenter {
   #handleFavoriteClick = (id) => {
     const findFilm = this.#films.find((film) => film.id === id);
     findFilm.isFavorite = !findFilm.isFavorite;
-    this.#activePopup.updateData(findFilm);
+    if (this.#activePopup) {
+      this.#activePopup.updateData(findFilm, this.#commentsModel.comments);
+    }
     this.#moviesModel.updateFilm('film FavoriteClick', findFilm);
     this.#reloadFilterList();
     this.#clearFilmList();
@@ -315,7 +317,9 @@ export default class FilmsPresenter {
   #handleWatchedClick = (id) => {
     const findFilm = this.#films.find((film) => film.id === id);
     findFilm.isWatched = !findFilm.isWatched;
-    this.#activePopup.updateData(findFilm);
+    if (this.#activePopup) {
+      this.#activePopup.updateData(findFilm, this.#commentsModel.comments);
+    }
     this.#moviesModel.updateFilm('film WatchedClick', findFilm);
     this.#reloadFilterList();
     this.#clearFilmList();
@@ -326,7 +330,9 @@ export default class FilmsPresenter {
   #handleWatchlistClick = (id) => {
     const findFilm = this.#films.find((film) => film.id === id);
     findFilm.isWatchlist = !findFilm.isWatchlist;
-    this.#activePopup.updateData(findFilm);
+    if (this.#activePopup) {
+      this.#activePopup.updateData(findFilm, this.#commentsModel.comments);
+    }
     this.#moviesModel.updateFilm('film WatchlistClick', findFilm);
     this.#reloadFilterList();
     this.#clearFilmList();
