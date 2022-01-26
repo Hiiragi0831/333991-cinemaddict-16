@@ -90,42 +90,63 @@ export default class StatsView extends SmartView {
   #updateChart = () => {
     const statisticCtx = document.querySelector('.statistic__chart').getContext('2d');
     statisticCtx.height = BAR_HEIGHT * this.#labels.length;
-    console.log(this.#labels);
-    console.log(this.#labelsValue);
 
     new Chart(statisticCtx, {
-      type: 'bar',
+      plugins: [ChartDataLabels],
+      type: 'horizontalBar',
       data: {
-        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+        labels: this.#labels,
         datasets: [{
-          label: '# of Votes',
-          data: [12, 19, 3, 5, 2, 3],
-          backgroundColor: [
-            'rgba(255, 99, 132, 0.2)',
-            'rgba(54, 162, 235, 0.2)',
-            'rgba(255, 206, 86, 0.2)',
-            'rgba(75, 192, 192, 0.2)',
-            'rgba(153, 102, 255, 0.2)',
-            'rgba(255, 159, 64, 0.2)'
-          ],
-          borderColor: [
-            'rgba(255, 99, 132, 1)',
-            'rgba(54, 162, 235, 1)',
-            'rgba(255, 206, 86, 1)',
-            'rgba(75, 192, 192, 1)',
-            'rgba(153, 102, 255, 1)',
-            'rgba(255, 159, 64, 1)'
-          ],
-          borderWidth: 1
-        }]
+          data: this.#labelsValue,
+          backgroundColor: '#ffe800',
+          hoverBackgroundColor: '#ffe800',
+          anchor: 'start',
+          barThickness: 24,
+        }],
       },
       options: {
+        responsive: false,
+        plugins: {
+          datalabels: {
+            font: {
+              size: 20,
+            },
+            color: '#ffffff',
+            anchor: 'start',
+            align: 'start',
+            offset: 40,
+          },
+        },
         scales: {
-          y: {
-            beginAtZero: true
-          }
-        }
-      }
+          yAxes: [{
+            ticks: {
+              fontColor: '#ffffff',
+              padding: 100,
+              fontSize: 20,
+            },
+            gridLines: {
+              display: false,
+              drawBorder: false,
+            },
+          }],
+          xAxes: [{
+            ticks: {
+              display: false,
+              beginAtZero: true,
+            },
+            gridLines: {
+              display: false,
+              drawBorder: false,
+            },
+          }],
+        },
+        legend: {
+          display: false,
+        },
+        tooltips: {
+          enabled: false,
+        },
+      },
     });
   }
 
