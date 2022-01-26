@@ -62,6 +62,10 @@ export default class SiteMenuView extends AbstractView {
       return;
     }
 
+    if (!this.#filterModel.currentFilter === !FilterType.STATS) {
+      this.element.querySelector('.main-navigation__additional').classList.remove('main-navigation__item--active');
+    }
+
     evt.preventDefault();
     this._callback.filterTypeChange(evt.target.dataset.filterType);
     this.element.querySelectorAll('.main-navigation__item').forEach((element) => element.classList.remove('main-navigation__item--active'));

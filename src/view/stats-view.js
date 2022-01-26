@@ -2,7 +2,7 @@ import SmartView from './smart-view';
 import {FilterStats} from '../const';
 import {filterStats, getDuration, getDurationHours, getStatsInfo, sortChartGenres, sortChartValues, getDurationMinutes} from '../utils';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-import {Chart} from 'chart.js';
+import Chart from 'chart.js';
 import {BAR_HEIGHT} from '../mock/constants';
 
 const getStatisticsTemplate = (currentFilter, watched, duration, topGenre) =>

@@ -52,7 +52,7 @@ export const generateRandomString = (arr) => {
 
 export const generateRuntime= () => getRandomInteger(MIN_GAP_MINUTES, MAX_GAP_MINUTES);
 
-export const generateDate= () => dayjs(getRandomDate(START_DATE, END_DATE));
+export const generateDate= (start = START_DATE, end = END_DATE) => dayjs(getRandomDate(start, end));
 
 export function generateComments (arr) {
   const newArr = [];

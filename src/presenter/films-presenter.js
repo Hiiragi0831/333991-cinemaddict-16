@@ -344,8 +344,6 @@ export default class FilmsPresenter {
     const findComment = this.#commentsModel.comments.find((comment) => comment.id === id);
     const findFilm = this.#films.find((film) => film.id === findComment.filmId);
     this.#commentsModel.deleteComment(findComment.id);
-    // this.#comments = this.#commentsModel.comments;
-
     this.#activePopup.updateData(findFilm, this.#commentsModel.comments);
     this.#moviesModel.updateFilm('film deleteComment', findFilm);
     this.#reloadFilterList();
@@ -357,8 +355,6 @@ export default class FilmsPresenter {
     this.#commentsModel.addComment(newComment);
     const findComment = this.#commentsModel.comments.find((comment) => comment.id === newComment.id);
     const findFilm = this.#films.find((film) => film.id === findComment.filmId);
-    // this.#comments = this.#commentsModel.comments;
-
     this.#activePopup.updateData(findFilm, this.#commentsModel.comments);
     this.#moviesModel.updateFilm('film add Comment', findFilm);
     this.#reloadFilterList();
@@ -371,16 +367,12 @@ export default class FilmsPresenter {
     this.#activePopup.updateData({newComment: {emoji}});
   }
 
-  // хрен пойми что!!!
   #handleModelEvent = (updateType, data) => {
     console.log(updateType, data);
     if (updateType === 'load films') {
       this.init();
     }
-
-    // В зависимости от типа изменений решаем, что делать:
-    // - обновить часть списка (например, когда поменялось описание)
-    // - обновить список (например, когда задача ушла в архив)
-    // - обновить всю доску (например, при переключении фильтра)
   }
 }
+// баг с кликом на фильм
+// выводить запись на каждый пустой пункт
