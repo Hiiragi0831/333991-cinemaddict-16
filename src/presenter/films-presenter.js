@@ -375,4 +375,3 @@ export default class FilmsPresenter {
     }
   };
 }
-// баг с кликом на фильм
