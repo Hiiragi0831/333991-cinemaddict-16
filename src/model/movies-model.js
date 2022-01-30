@@ -1,15 +1,30 @@
-import AbstractObservable from '../utils';
+import AbstractObservable, {normalizeArray} from '../utils';
+import ApiService from '../api-service';
+import {normalizeMovie} from '../helps/normalize';
+import {UpdateType} from '../const';
 
 export default class MoviesModel extends AbstractObservable {
   #films = [];
+  #apiService = null;
 
-  get films() {
-    return [...this.#films];
+  constructor(apiService) {
+    super();
+    this.#apiService = apiService;
   }
 
-  set films(films) {
-    this.#films = [...films];
-    this._notify('load films', films);
+  get films() {
+    return this.#films;
+  }
+
+  init = async () => {
+    try {
+      const response = await this.#apiService.films;
+      this.#films = normalizeArray(await ApiService.parseResponse(response), normalizeMovie);
+    } catch (err) {
+      this.#films = [];
+    }
+
+    this._notify(UpdateType.INIT, this.#films);
   }
 
   updateFilm = (updateType, update) => {

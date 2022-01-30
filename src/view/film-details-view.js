@@ -8,6 +8,7 @@ const createPopupTemplate = (film, comments, currentEmoji, currentText) => {
   const favoriteClassName = film.isFavorite ? 'film-details__control-button--active' : '';
 
   const commentsMove = [];
+  const date = new Date (film.releaseDate);
 
   const createGenreTemplate = (genresArr) => (
     genresArr.map((genre) => `<span class="film-details__genre">${genre}</span>`).join('')
@@ -29,12 +30,6 @@ const createPopupTemplate = (film, comments, currentEmoji, currentText) => {
     </li>`).join(' ')
   );
 
-  for (let i = 0; i < comments.length; i++) {
-    if (film.id === comments[i].filmId) {
-      commentsMove.push(comments[i]);
-    }
-  }
-
   return `<section class="film-details">
     <form class="film-details__inner" action="" method="get">
       <div class="film-details__top-container">
@@ -43,7 +38,7 @@ const createPopupTemplate = (film, comments, currentEmoji, currentText) => {
         </div>
         <div class="film-details__info-wrap">
           <div class="film-details__poster">
-            <img class="film-details__poster-img" src="${film.image}" alt="${film.title}">
+            <img class="film-details__poster-img" src="${film.poster}" alt="${film.title}">
 
             <p class="film-details__age">${film.age}+</p>
           </div>
@@ -52,7 +47,7 @@ const createPopupTemplate = (film, comments, currentEmoji, currentText) => {
             <div class="film-details__info-head">
               <div class="film-details__title-wrap">
                 <h3 class="film-details__title">${film.title}</h3>
-                <p class="film-details__title-original">Original: ${film.title}</p>
+                <p class="film-details__title-original">Original: ${film.originalTitle}</p>
               </div>
 
               <div class="film-details__rating">
@@ -67,19 +62,19 @@ const createPopupTemplate = (film, comments, currentEmoji, currentText) => {
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Writers</td>
-                <td class="film-details__cell">${film.writers}</td>
+                <td class="film-details__cell">${film.writers.join(', ')}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Actors</td>
-                <td class="film-details__cell">${film.actors}</td>
+                <td class="film-details__cell">${film.actors.join(', ')}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Release Date</td>
-                <td class="film-details__cell">${film.date.format('DD MMMM YYYY')}</td>
+                <td class="film-details__cell">${dayjs(date).format('DD MMMM YYYY')}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Runtime</td>
-                <td class="film-details__cell">${film.runTime}</td>
+                <td class="film-details__cell">${dayjs.duration(film.runtime, 'minutes').format('H[h] m[m]')}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Country</td>

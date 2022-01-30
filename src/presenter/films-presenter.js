@@ -5,7 +5,7 @@ import FilmCardView from '../view/film-view';
 import PopupCardView from '../view/film-details-view';
 import ButtonMoreView from '../view/more-views';
 import {filterFavoriteMovies, filterWatchedMovies, filterWatchingMovies, sortByDate, sortByRating} from '../utils';
-import {SortType, FilterType} from '../const';
+import {SortType, FilterType, UpdateType} from '../const';
 import SiteMenuView from '../view/site-menu-view';
 import StatsView from '../view/stats-view';
 import {FilmsSectionViewEmpty} from '../view/films-section-empty';
@@ -153,15 +153,7 @@ export default class FilmsPresenter {
     const filmComponent = new FilmCardView(film, commentary);
     const filmsContainerElement = this.#filmsSectionComponent.element.querySelector('.films-list__container');
 
-    filmComponent.element.querySelector('.film-card__link').addEventListener(('click'), () => {
-      if (this.#activePopup) {
-        remove(this.#activePopup);
-      }
-
-      this.#createPopup(film, commentary);
-      document.addEventListener('keydown', this.#escKeyDownHandler);
-      document.addEventListener('click', this.#closeButton);
-    });
+    filmComponent.setClickHandler(this.#handleFilmClick.bind(this));
 
     render(filmsContainerElement, filmComponent, RenderPosition.BEFOREEND);
 
@@ -295,6 +287,19 @@ export default class FilmsPresenter {
     }
   };
 
+  #handleFilmClick = (id) => {
+    const findFilm = this.#films.find((film) => film.id === id);
+    this.#commentsModel.loadComments(findFilm.id);
+
+    if (this.#activePopup) {
+      remove(this.#activePopup);
+    }
+
+    this.#createPopup(findFilm, this.#commentsModel.comments);
+    document.addEventListener('keydown', this.#escKeyDownHandler);
+    document.addEventListener('click', this.#closeButton);
+  }
+
   // Слушатель клика избранного
   #handleFavoriteClick = (id) => {
     const findFilm = this.#films.find((film) => film.id === id);
@@ -369,9 +374,16 @@ export default class FilmsPresenter {
   };
 
   #handleModelEvent = (updateType, data) => {
-    console.log(updateType, data);
-    if (updateType === 'load films') {
-      this.init();
+    if (updateType === UpdateType.LOAD_COMMENTS) {
+      this.#createPopup(data);
+      return;
     }
+
+    if (updateType === UpdateType.INIT) {
+      this.init();
+      console.log(updateType, data);
+    }
+
+    this.#updateFilters();
   };
 }
