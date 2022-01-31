@@ -374,6 +374,7 @@ export default class FilmsPresenter {
   };
 
   #handleModelEvent = (updateType, data) => {
+    console.log(updateType, data);
     if (updateType === UpdateType.LOAD_COMMENTS) {
       this.#createPopup(data);
       return;

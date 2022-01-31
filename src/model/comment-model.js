@@ -20,11 +20,11 @@ export default class CommentsModel extends AbstractObservable {
     try {
       const response = await this.#apiService.getMoviesComments(movieId);
       this.#comments = normalizeArray(await ApiService.parseResponse(response), normalizeComment);
+
+      this._notify(UpdateType.LOAD_COMMENTS, this.#comments);
     } catch (err) {
       this.#comments = [];
     }
-
-    this._notify(UpdateType.LOAD_COMMENTS, this.#comments);
   }
 
   addComment = async (movieId, comment, callback) => {
