@@ -13,7 +13,7 @@ export default class MoviesModel extends AbstractObservable {
   }
 
   get films() {
-    return this.#films;
+    return [...this.#films];
   }
 
   init = async () => {

@@ -174,7 +174,7 @@ export default class PopupCardView extends SmartView {
     }
 
     if (filmUpdate) {
-      this.#films = {...this.#films, ...filmUpdate};
+      this.#films = filmUpdate;
     }
 
     if (commentsUpdate) {
@@ -231,19 +231,16 @@ export default class PopupCardView extends SmartView {
   #favoriteClickHandler = (evt) => {
     evt.preventDefault();
     this._callback.favoriteClick(this.#films.id);
-    evt.target.classList.toggle('film-details__control-button--active');
   }
 
   #watchlistClickHandler = (evt) => {
     evt.preventDefault();
     this._callback.watchlistClick(this.#films.id);
-    evt.target.classList.toggle('film-details__control-button--active');
   }
 
   #watchedClickHandler = (evt) => {
     evt.preventDefault();
     this._callback.watchedClick(this.#films.id);
-    evt.target.classList.toggle('film-details__control-button--active');
   }
 
   #emojiClickHandler = (evt) => {

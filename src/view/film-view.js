@@ -54,13 +54,6 @@ export default class FilmCardView extends AbstractView {
   #clickHandler = (evt) => {
     evt.preventDefault();
     this._callback.filmClick(this.#films.id);
-    // const movieCard = evt.target.closest('.film-card__link');
-    //
-    // if (!movieCard) {
-    //   return;
-    // }
-    // const id = movieCard.dataset.id;
-    // this._callback.filmClick(evt.target.dataset.film);
   }
 
   setFavoriteClickHandler = (callback) => {
@@ -81,18 +74,15 @@ export default class FilmCardView extends AbstractView {
   #favoriteClickHandler = (evt) => {
     evt.preventDefault();
     this._callback.favoriteClick(this.#films.id);
-    evt.target.classList.toggle('film-card__controls-item--active');
   }
 
   #watchlistClickHandler = (evt) => {
     evt.preventDefault();
     this._callback.watchlistClick(this.#films.id);
-    evt.target.classList.toggle('film-card__controls-item--active');
   }
 
   #watchedClickHandler = (evt) => {
     evt.preventDefault();
     this._callback.watchedClick(this.#films.id);
-    evt.target.classList.toggle('film-card__controls-item--active');
   }
 }

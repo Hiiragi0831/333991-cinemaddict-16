@@ -326,51 +326,23 @@ export default class FilmsPresenter {
   #handleFavoriteClick = (id) => {
     const findFilm = this.#films.find((film) => film.id === id);
     findFilm.isFavorite = !findFilm.isFavorite;
-
-    if (this.#activePopup) {
-      this.#activePopup.updateData(findFilm, this.#commentsModel.comments);
-    }
-
-    this.#moviesModel.updateFilm('film FavoriteClick', findFilm);
-    this.#reloadFilterList();
-    this.#clearFilmList();
-    this.#reloadProfile();
-    this.#renderContainer();
+    this.#moviesModel.updateFilm(UpdateType.CONTROLS, findFilm);
   };
 
   // Слушатель клика просмотренно
   #handleWatchedClick = (id) => {
     const findFilm = this.#films.find((film) => film.id === id);
     findFilm.isWatched = !findFilm.isWatched;
-
-    if (this.#activePopup) {
-      this.#activePopup.updateData(findFilm, this.#commentsModel.comments);
-    }
-
-    this.#moviesModel.updateFilm('film WatchedClick', findFilm);
-    this.#reloadFilterList();
-    this.#clearFilmList();
-    this.#reloadProfile();
-    this.#renderContainer();
+    this.#moviesModel.updateFilm(UpdateType.CONTROLS, findFilm);
   };
 
   // Слушатель клика для добавления в список просмотренных
   #handleWatchlistClick = (id) => {
     const findFilm = this.#films.find((film) => film.id === id);
     findFilm.isWatchlist = !findFilm.isWatchlist;
-
-    if (this.#activePopup) {
-      this.#activePopup.updateData(findFilm, this.#commentsModel.comments);
-    }
-
-    this.#moviesModel.updateFilm('film WatchlistClick', findFilm);
-    this.#reloadFilterList();
-    this.#clearFilmList();
-    this.#reloadProfile();
-    this.#renderContainer();
+    this.#moviesModel.updateFilm(UpdateType.CONTROLS, findFilm);
   };
 
-  // this.#comments => this.#commentsModel.comments
   #deleteComment = (id) => {
     const findComment = this.#commentsModel.comments.find((comment) => comment.id === id);
     const findFilm = this.#films.find((film) => film.id === findComment.filmId);
@@ -403,7 +375,6 @@ export default class FilmsPresenter {
     if (updateType === UpdateType.LOAD_COMMENTS) {
       this.#createPopup(this.#currentFilm, data);
       console.log(updateType, data);
-      return;
     }
 
     if (updateType === UpdateType.INIT) {
@@ -411,11 +382,20 @@ export default class FilmsPresenter {
       console.log(updateType, data);
     }
 
+    if (updateType === UpdateType.CONTROLS) {
+      if (this.#activePopup) {
+        this.#activePopup.updateData(data, this.#commentsModel.comments);
+      }
+
+      this.#reloadFilterList();
+      this.#clearFilmList();
+      this.#reloadProfile();
+      this.#renderContainer();
+      console.log(updateType, data);
+    }
+
     this.#updateFilters();
   };
 }
-// Сортировка сбилась
-// неработают клики кнопок
-
 // вторая дз
 // реализовать добавление и уадление комментов

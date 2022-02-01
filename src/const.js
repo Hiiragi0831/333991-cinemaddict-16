@@ -46,6 +46,7 @@ export const UpdateType = {
   PATCH: 'PATCH',
   MINOR: 'MINOR',
   MAJOR: 'MAJOR',
+  CONTROLS: 'CONTROLS',
 };
 
 export const MINUTES_IN_HOUR = 60;
