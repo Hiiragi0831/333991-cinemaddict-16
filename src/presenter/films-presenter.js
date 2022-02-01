@@ -9,6 +9,8 @@ import {SortType, FilterType, UpdateType} from '../const';
 import SiteMenuView from '../view/site-menu-view';
 import StatsView from '../view/stats-view';
 import {FilmsSectionViewEmpty} from '../view/films-section-empty';
+import ProfileSectionView from '../view/profile-view';
+import FooterStatisticsView from '../view/statistics-view';
 
 const FILM_COUNT_PER_STEP = 5;
 
@@ -24,6 +26,8 @@ export default class FilmsPresenter {
   #filtersComponent = null;
   #noFilmsComponent = new FilmsSectionViewEmpty();
   #loadMoreButtonComponent = new ButtonMoreView();
+  #profileComponent = new ProfileSectionView();
+  #footerComponent = new FooterStatisticsView();
   #films = [];
   #watchMovies = [];
   #watchedMovies = [];
@@ -80,10 +84,23 @@ export default class FilmsPresenter {
   init = () => {
     this.#films = [...this.films];
 
+    this.#updateFilters();
+    this.#renderProfile();
+    this.#renderFooter();
     this.#renderFiltersList();
     this.#renderSortList();
     this.#renderContainer();
   };
+
+  #renderProfile = () => {
+    this.#profileComponent.ratingSet(this.#watchedMovies.length);
+    render(document.querySelector('.header'), this.#profileComponent, RenderPosition.BEFOREEND);
+  }
+
+  #renderFooter = () => {
+    this.#footerComponent.setNumber(this.#films.length);
+    render(document.querySelector('.footer__statistics'), this.#footerComponent, RenderPosition.BEFOREEND);
+  }
 
   // Сортировка принимает в себя тип сортировки;
   // проверяем текуший тип соортировки если да то ничего не возврашаем;
@@ -282,6 +299,11 @@ export default class FilmsPresenter {
     this.#renderFiltersList();
   };
 
+  #reloadProfile = () => {
+    remove(this.#profileComponent);
+    this.#renderProfile();
+  }
+
   // Слушатель Escape
   #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
@@ -312,6 +334,7 @@ export default class FilmsPresenter {
     this.#moviesModel.updateFilm('film FavoriteClick', findFilm);
     this.#reloadFilterList();
     this.#clearFilmList();
+    this.#reloadProfile();
     this.#renderContainer();
   };
 
@@ -327,6 +350,7 @@ export default class FilmsPresenter {
     this.#moviesModel.updateFilm('film WatchedClick', findFilm);
     this.#reloadFilterList();
     this.#clearFilmList();
+    this.#reloadProfile();
     this.#renderContainer();
   };
 
@@ -342,6 +366,7 @@ export default class FilmsPresenter {
     this.#moviesModel.updateFilm('film WatchlistClick', findFilm);
     this.#reloadFilterList();
     this.#clearFilmList();
+    this.#reloadProfile();
     this.#renderContainer();
   };
 
@@ -377,6 +402,7 @@ export default class FilmsPresenter {
 
     if (updateType === UpdateType.LOAD_COMMENTS) {
       this.#createPopup(this.#currentFilm, data);
+      console.log(updateType, data);
       return;
     }
 
@@ -388,3 +414,8 @@ export default class FilmsPresenter {
     this.#updateFilters();
   };
 }
+// Сортировка сбилась
+// неработают клики кнопок
+
+// вторая дз
+// реализовать добавление и уадление комментов

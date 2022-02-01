@@ -48,7 +48,7 @@ export default class AbstractObservable {
 }
 
 export const normalizeArray = (list, callback) => list.map(callback);
-export const getDuration = (films) => films.reduce(((prevValue, {runTime}) => prevValue + runTime), 0);
+export const getDuration = (films) => films.reduce(((prevValue, {runtime}) => prevValue + runtime), 0);
 export const getDurationHours = (duration) => Math.floor(duration / MINUTES_IN_HOUR);
 export const getDurationMinutes = (duration) => duration % MINUTES_IN_HOUR;
 

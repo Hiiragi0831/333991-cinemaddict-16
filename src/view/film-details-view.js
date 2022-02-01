@@ -79,7 +79,7 @@ const createPopupTemplate = (film, comments, currentEmoji, currentText) => {
                 <td class="film-details__cell">${film.country}</td>
               </tr>
               <tr class="film-details__row">
-                <td class="film-details__term">Genres</td>
+                <td class="film-details__term">${film.genres.length > 1 ? 'Genres' : 'Genre'}</td>
                 <td class="film-details__cell">
                   ${createGenreTemplate(film.genres)}
                 </td>
