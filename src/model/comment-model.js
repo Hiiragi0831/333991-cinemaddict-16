@@ -24,6 +24,7 @@ export default class CommentsModel extends AbstractObservable {
       this._notify(UpdateType.LOAD_COMMENTS, this.#comments);
     } catch (err) {
       this.#comments = [];
+      this._notify(UpdateType.LOAD_COMMENTS_ERROR, this.#comments);
     }
   }
 

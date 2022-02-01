@@ -11,6 +11,7 @@ import StatsView from '../view/stats-view';
 import {FilmsSectionViewEmpty} from '../view/films-section-empty';
 import ProfileSectionView from '../view/profile-view';
 import FooterStatisticsView from '../view/statistics-view';
+import {LoadingView} from '../view/loading-view';
 
 const FILM_COUNT_PER_STEP = 5;
 
@@ -37,6 +38,7 @@ export default class FilmsPresenter {
   #currentSortType = SortType.DEFAULT;
   #createdFilms = [];
   #currentFilm = null;
+  #loadingView = new LoadingView();
 
   // сюда принимаем данные из моделей и записываем их в переменные презентера и с нимим работаем
   constructor(filmsContainer, moviesModel, commentsModel, filterModel) {
@@ -45,6 +47,7 @@ export default class FilmsPresenter {
     this.#commentsModel = commentsModel;
     this.#filterModel = filterModel;
     this.#filtersComponent = new SiteMenuView(this.#filterModel);
+    this.#loadingFilms();
 
     this.#moviesModel.addObserver(this.#handleModelEvent);
     this.#commentsModel.addObserver(this.#handleModelEvent);
@@ -84,7 +87,6 @@ export default class FilmsPresenter {
   init = () => {
     this.#films = [...this.films];
 
-    this.#updateFilters();
     this.#renderProfile();
     this.#renderFooter();
     this.#renderFiltersList();
@@ -92,7 +94,12 @@ export default class FilmsPresenter {
     this.#renderContainer();
   };
 
+  #loadingFilms = () => {
+    render(this.#filmsContainer, this.#loadingView, RenderPosition.BEFOREEND);
+  }
+
   #renderProfile = () => {
+    this.#updateFilters();
     this.#profileComponent.ratingSet(this.#watchedMovies.length);
     render(document.querySelector('.header'), this.#profileComponent, RenderPosition.BEFOREEND);
   }
@@ -120,6 +127,10 @@ export default class FilmsPresenter {
   // рендер списка сортировки;
   // дергаем обработчик кликов;
   #renderSortList = () => {
+    if (this.#moviesModel.films.length === 0) {
+      return;
+    }
+
     render(this.#filmsContainer, this.#sortComponent, RenderPosition.BEFOREEND);
     this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
   };
@@ -241,8 +252,8 @@ export default class FilmsPresenter {
       if (this.#filmsSectionComponent) {
         remove(this.#filmsSectionComponent);
       }
-
       this.#noFilmsComponent.filterTypeEmpty(this.#filterModel.currentFilter);
+      remove(this.#sortComponent);
       render(this.#filmsContainer, this.#noFilmsComponent, RenderPosition.BEFOREEND);
       return;
     }
@@ -280,22 +291,14 @@ export default class FilmsPresenter {
     this.#createdFilms = [];
   };
 
-  #removeSortList = () => {
-    remove(this.#sortComponent);
-  };
-
-  #removeFilterList = () => {
-    remove(this.#filtersComponent);
-  };
-
   // очистка и рендер списка сортирровки
   #reloadSortList = () => {
-    this.#removeSortList();
+    remove(this.#sortComponent);
     this.#renderSortList();
   };
 
   #reloadFilterList = () => {
-    this.#removeFilterList();
+    remove(this.#filtersComponent);
     this.#renderFiltersList();
   };
 
@@ -372,13 +375,24 @@ export default class FilmsPresenter {
 
   #handleModelEvent = (updateType, data) => {
 
+    if (updateType === UpdateType.INIT) {
+      remove(this.#loadingView);
+      this.init();
+      console.log(updateType, data);
+    }
+
+    if (updateType === UpdateType.ERROR) {
+      this.init();
+      console.log(updateType, data);
+    }
+
     if (updateType === UpdateType.LOAD_COMMENTS) {
       this.#createPopup(this.#currentFilm, data);
       console.log(updateType, data);
     }
 
-    if (updateType === UpdateType.INIT) {
-      this.init();
+    if (updateType === UpdateType.LOAD_COMMENTS_ERROR) {
+      this.#createPopup(this.#currentFilm, data);
       console.log(updateType, data);
     }
 
@@ -387,8 +401,8 @@ export default class FilmsPresenter {
         this.#activePopup.updateData(data, this.#commentsModel.comments);
       }
 
-      this.#reloadFilterList();
       this.#clearFilmList();
+      this.#reloadFilterList();
       this.#reloadProfile();
       this.#renderContainer();
       console.log(updateType, data);
