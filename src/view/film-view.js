@@ -13,7 +13,7 @@ const createFilmCardTemplate = (film) => {
   const date = new Date (film.releaseDate);
 
   return`<article class="film-card">
-    <a class="film-card__link">
+    <a class="film-card__link" data-film="${film.id}">
       <h3 class="film-card__title">${film.title}</h3>
       <p class="film-card__rating">${film.rating}</p>
       <p class="film-card__info">
@@ -47,13 +47,20 @@ export default class FilmCardView extends AbstractView {
   }
 
   setClickHandler = (callback) => {
-    this._callback.click = callback;
+    this._callback.filmClick = callback;
     this.element.querySelector('.film-card__link').addEventListener('click', this.#clickHandler);
   }
 
   #clickHandler = (evt) => {
     evt.preventDefault();
-    this._callback.click(this.#films.id);
+    this._callback.filmClick(this.#films.id);
+    // const movieCard = evt.target.closest('.film-card__link');
+    //
+    // if (!movieCard) {
+    //   return;
+    // }
+    // const id = movieCard.dataset.id;
+    // this._callback.filmClick(evt.target.dataset.film);
   }
 
   setFavoriteClickHandler = (callback) => {

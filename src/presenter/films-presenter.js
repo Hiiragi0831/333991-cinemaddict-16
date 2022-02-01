@@ -294,7 +294,6 @@ export default class FilmsPresenter {
     if (this.#activePopup) {
       remove(this.#activePopup);
     }
-
     this.#createPopup(findFilm, this.#commentsModel.comments);
     document.addEventListener('keydown', this.#escKeyDownHandler);
     document.addEventListener('click', this.#closeButton);
@@ -374,9 +373,9 @@ export default class FilmsPresenter {
   };
 
   #handleModelEvent = (updateType, data) => {
-    console.log(updateType, data);
+
     if (updateType === UpdateType.LOAD_COMMENTS) {
-      this.#createPopup(data);
+      this.#createPopup(0, data);
       return;
     }
 

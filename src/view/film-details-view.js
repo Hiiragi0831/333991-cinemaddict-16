@@ -6,8 +6,6 @@ const createPopupTemplate = (film, comments, currentEmoji, currentText) => {
   const watchlistClassName = film.isWatchlist ? 'film-details__control-button--active' : '';
   const watchedClassName = film.isWatched ? 'film-details__control-button--active' : '';
   const favoriteClassName = film.isFavorite ? 'film-details__control-button--active' : '';
-
-  const commentsMove = [];
   const date = new Date (film.releaseDate);
 
   const createGenreTemplate = (genresArr) => (
@@ -23,12 +21,14 @@ const createPopupTemplate = (film, comments, currentEmoji, currentText) => {
         <p class="film-details__comment-text">${he.encode(comment.text)}</p>
         <p class="film-details__comment-info">
           <span class="film-details__comment-author">${he.encode(comment.author)}</span>
-          <span class="film-details__comment-day">${comment.date.format('DD/MM/YYYY HH:mm')}</span>
+          <span class="film-details__comment-day">${dayjs.duration(comment.date).format('DD/MM/YYYY HH:mm')}</span>
           <button class="film-details__comment-delete" data-id="${comment.id}">Delete</button>
         </p>
       </div>
     </li>`).join(' ')
   );
+
+  console.log('коментарии во вью', comments);
 
   return `<section class="film-details">
     <form class="film-details__inner" action="" method="get">
@@ -103,10 +103,10 @@ const createPopupTemplate = (film, comments, currentEmoji, currentText) => {
 
       <div class="film-details__bottom-container">
         <section class="film-details__comments-wrap">
-          <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${commentsMove.length}</span></h3>
+          <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.length}</span></h3>
 
           <ul class="film-details__comments-list">
-            ${createCommentTemplate(commentsMove)}
+            ${createCommentTemplate(comments)}
           </ul>
 
           <div class="film-details__new-comment">
@@ -206,27 +206,27 @@ export default class PopupCardView extends SmartView {
   }
 
   setWatchedClickHandler = (callback) => {
-    this._callback.WatchedClick = callback;
+    this._callback.watchedClick = callback;
     this.element.querySelector('.film-details__control-button--watched').addEventListener('click', this.#watchedClickHandler);
   }
 
   setWatchlistClickHandler = (callback) => {
-    this._callback.WatchlistClick = callback;
+    this._callback.watchlistClick = callback;
     this.element.querySelector('.film-details__control-button--watchlist').addEventListener('click', this.#watchlistClickHandler);
   }
 
   setEmojiClickHandler = (callback) => {
-    this._callback.EmojiClick = callback;
+    this._callback.emojiClick = callback;
     this.element.querySelector('.film-details__emoji-list').addEventListener('click', this.#emojiClickHandler);
   }
 
   setDeleteClickHandler = (callback) => {
-    this._callback.DeleteClick = callback;
+    this._callback.deleteClick = callback;
     this.element.querySelector('.film-details__comments-list').addEventListener('click', this.#deleteCommentClickHandler);
   }
 
   setAddCommentClickHandler = (callback) => {
-    this._callback.AddComment = callback;
+    this._callback.addComment = callback;
     this.element.querySelector('.film-details__comment-input').addEventListener('keyup', this.#addCommentClickHandler);
   }
 
@@ -238,13 +238,13 @@ export default class PopupCardView extends SmartView {
 
   #watchlistClickHandler = (evt) => {
     evt.preventDefault();
-    this._callback.WatchlistClick(this.#films.id);
+    this._callback.watchlistClick(this.#films.id);
     evt.target.classList.toggle('film-details__control-button--active');
   }
 
   #watchedClickHandler = (evt) => {
     evt.preventDefault();
-    this._callback.WatchedClick(this.#films.id);
+    this._callback.watchedClick(this.#films.id);
     evt.target.classList.toggle('film-details__control-button--active');
   }
 
@@ -255,14 +255,14 @@ export default class PopupCardView extends SmartView {
       this.#currentEmoji = evt.target.dataset.emoji;
     }
 
-    this._callback.EmojiClick(this.#currentEmoji);
+    this._callback.emojiClick(this.#currentEmoji);
   }
 
   #deleteCommentClickHandler = (evt) => {
     evt.preventDefault();
 
     if (evt.target.tagName === 'BUTTON') {
-      this._callback.DeleteClick(evt.target.dataset.id);
+      this._callback.deleteClick(evt.target.dataset.id);
     }
   }
 
@@ -282,7 +282,7 @@ export default class PopupCardView extends SmartView {
           date: dayjs(new Date()),
         };
         this.resetData();
-        this._callback.AddComment(newComment);
+        this._callback.addComment(newComment);
       }
     }
   }
