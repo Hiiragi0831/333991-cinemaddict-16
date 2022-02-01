@@ -32,6 +32,7 @@ export default class FilmsPresenter {
   #filmPresenter = new Map();
   #currentSortType = SortType.DEFAULT;
   #createdFilms = [];
+  #currentFilm = null;
 
   // сюда принимаем данные из моделей и записываем их в переменные презентера и с нимим работаем
   constructor(filmsContainer, moviesModel, commentsModel, filterModel) {
@@ -149,8 +150,8 @@ export default class FilmsPresenter {
   };
 
   // рендер 1 карточки фильма и создание попап компонента;
-  #renderFilm = (film, commentary) => {
-    const filmComponent = new FilmCardView(film, commentary);
+  #renderFilm = (film) => {
+    const filmComponent = new FilmCardView(film);
     const filmsContainerElement = this.#filmsSectionComponent.element.querySelector('.films-list__container');
 
     filmComponent.setClickHandler(this.#handleFilmClick.bind(this));
@@ -178,9 +179,21 @@ export default class FilmsPresenter {
     popupComponent.setAddCommentClickHandler(this.#addComment.bind(this));
   };
 
+  #handleFilmClick = (id) => {
+    this.#currentFilm = this.#films.find((film) => film.id === id);
+    this.#commentsModel.loadComments(this.#currentFilm.id);
+
+    if (this.#activePopup) {
+      remove(this.#activePopup);
+    }
+
+    document.addEventListener('keydown', this.#escKeyDownHandler);
+    document.addEventListener('click', this.#closeButton);
+  }
+
   // Проходимся по циклу
   #renderFilms = (from, to) => {
-    this.#createdFilms = [...this.#createdFilms, ...this.#films.slice(from, to).map((film) => this.#renderFilm(film, this.#commentsModel.comments))];
+    this.#createdFilms = [...this.#createdFilms, ...this.#films.slice(from, to).map((film) => this.#renderFilm(film))];
   };
 
   // Функция загрузки фильпов по клику
@@ -287,18 +300,6 @@ export default class FilmsPresenter {
     }
   };
 
-  #handleFilmClick = (id) => {
-    const findFilm = this.#films.find((film) => film.id === id);
-    this.#commentsModel.loadComments(findFilm.id);
-
-    if (this.#activePopup) {
-      remove(this.#activePopup);
-    }
-    this.#createPopup(findFilm, this.#commentsModel.comments);
-    document.addEventListener('keydown', this.#escKeyDownHandler);
-    document.addEventListener('click', this.#closeButton);
-  }
-
   // Слушатель клика избранного
   #handleFavoriteClick = (id) => {
     const findFilm = this.#films.find((film) => film.id === id);
@@ -375,7 +376,7 @@ export default class FilmsPresenter {
   #handleModelEvent = (updateType, data) => {
 
     if (updateType === UpdateType.LOAD_COMMENTS) {
-      this.#createPopup(0, data);
+      this.#createPopup(this.#currentFilm, data);
       return;
     }
 

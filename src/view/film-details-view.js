@@ -21,14 +21,12 @@ const createPopupTemplate = (film, comments, currentEmoji, currentText) => {
         <p class="film-details__comment-text">${he.encode(comment.text)}</p>
         <p class="film-details__comment-info">
           <span class="film-details__comment-author">${he.encode(comment.author)}</span>
-          <span class="film-details__comment-day">${dayjs.duration(comment.date).format('DD/MM/YYYY HH:mm')}</span>
+          <span class="film-details__comment-day">${dayjs(comment.date).format('DD/MM/YYYY HH:mm')} </span>
           <button class="film-details__comment-delete" data-id="${comment.id}">Delete</button>
         </p>
       </div>
     </li>`).join(' ')
   );
-
-  console.log('коментарии во вью', comments);
 
   return `<section class="film-details">
     <form class="film-details__inner" action="" method="get">
