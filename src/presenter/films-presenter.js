@@ -374,12 +374,10 @@ export default class FilmsPresenter {
 
     if (updateType === UpdateType.LOAD_COMMENTS) {
       this.#createPopup(this.#currentFilm, data);
-      console.log(updateType, data);
     }
 
     if (updateType === UpdateType.INIT) {
       this.init();
-      console.log(updateType, data);
     }
 
     if (updateType === UpdateType.CONTROLS) {
@@ -391,7 +389,6 @@ export default class FilmsPresenter {
       this.#clearFilmList();
       this.#reloadProfile();
       this.#renderContainer();
-      console.log(updateType, data);
     }
 
     this.#updateFilters();
