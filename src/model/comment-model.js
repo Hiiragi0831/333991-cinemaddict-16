@@ -20,7 +20,6 @@ export default class CommentsModel extends AbstractObservable {
     try {
       const response = await this.#apiService.getMoviesComments(movieId);
       this.#comments = normalizeArray(await ApiService.parseResponse(response), normalizeComment);
-
       this._notify(UpdateType.LOAD_COMMENTS, this.#comments);
     } catch (err) {
       this.#comments = [];
@@ -28,21 +27,21 @@ export default class CommentsModel extends AbstractObservable {
     }
   }
 
-  addComment = async (movieId, comment, callback) => {
+  addComment = async (movieId, comment) => {
+
     try {
       const response = await ApiService.parseResponse(await this.#apiService.addComment(movieId, comment));
       this.#comments = normalizeArray(response.comments, normalizeComment);
 
-      callback(movieId, response.films.comments);
-
-      this._notify();
+      this._notify(UpdateType.ADD_COMMENT, comment);
 
     } catch (err) {
       this._notify(UpdateType.ERROR, err);
     }
   }
 
-  deleteComment = async (commentId, callback) => {
+  deleteComment = async (commentId) => {
+    this._notify(UpdateType.DELETING_COMMENT, commentId);
     try {
       await this.#apiService.deleteComment(commentId);
 
@@ -57,9 +56,7 @@ export default class CommentsModel extends AbstractObservable {
         ...this.#comments.slice(index + 1)
       ];
 
-      callback(commentId);
-
-      this._notify();
+      this._notify(UpdateType.DELETE_COMMENT, commentId);
 
     } catch (err) {
       this._notify(UpdateType.ERROR, err);

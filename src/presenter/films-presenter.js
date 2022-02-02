@@ -348,29 +348,19 @@ export default class FilmsPresenter {
 
   #deleteComment = (id) => {
     const findComment = this.#commentsModel.comments.find((comment) => comment.id === id);
-    const findFilm = this.#films.find((film) => film.id === findComment.filmId);
     this.#commentsModel.deleteComment(findComment.id);
-    this.#activePopup.updateData(findFilm, this.#commentsModel.comments);
-    this.#moviesModel.updateFilm('film deleteComment', findFilm);
-    this.#reloadFilterList();
-    this.#clearFilmList();
-    this.#renderContainer();
+    this.#moviesModel.updateFilm(UpdateType.DELETE_COMMENT, this.#currentFilm);
   };
 
   #addComment = (newComment) => {
-    this.#commentsModel.addComment(newComment);
-    const findComment = this.#commentsModel.comments.find((comment) => comment.id === newComment.id);
-    const findFilm = this.#films.find((film) => film.id === findComment.filmId);
-    this.#activePopup.updateData(findFilm, this.#commentsModel.comments);
-    this.#moviesModel.updateFilm('film add Comment', findFilm);
-    this.#reloadFilterList();
-    this.#clearFilmList();
-    this.#renderContainer();
+    this.#commentsModel.addComment(this.#currentFilm.id, newComment);
+    this.#moviesModel.updateFilm(UpdateType.ADD_COMMENT, this.#currentFilm);
   };
 
   // Слушатель для комментария клик по эмоджи
   #handleEmojiClick = (emoji) => {
-    this.#activePopup.updateData({newComment: {emoji}});
+    this.#currentFilm.newComment.emoji = emoji;
+    this.#activePopup.updateData(this.#currentFilm);
   };
 
   #handleModelEvent = (updateType, data) => {
@@ -378,22 +368,35 @@ export default class FilmsPresenter {
     if (updateType === UpdateType.INIT) {
       remove(this.#loadingView);
       this.init();
-      console.log(updateType, data);
     }
 
-    if (updateType === UpdateType.ERROR) {
+    if (updateType === UpdateType.ERROR_LOAD_FILM) {
+      remove(this.#loadingView);
       this.init();
-      console.log(updateType, data);
     }
 
     if (updateType === UpdateType.LOAD_COMMENTS) {
       this.#createPopup(this.#currentFilm, data);
-      console.log(updateType, data);
     }
 
     if (updateType === UpdateType.LOAD_COMMENTS_ERROR) {
       this.#createPopup(this.#currentFilm, data);
-      console.log(updateType, data);
+    }
+
+    if (updateType === UpdateType.DELETE_COMMENT) {
+      this.#activePopup.updateData(this.#currentFilm, this.#commentsModel.comments);
+      this.#clearFilmList();
+      this.#reloadFilterList();
+      this.#reloadProfile();
+      this.#renderContainer();
+    }
+
+    if (updateType === UpdateType.ADD_COMMENT) {
+      this.#activePopup.updateData(this.#currentFilm, this.#commentsModel.comments);
+      this.#clearFilmList();
+      this.#reloadFilterList();
+      this.#reloadProfile();
+      this.#renderContainer();
     }
 
     if (updateType === UpdateType.CONTROLS) {
@@ -405,7 +408,6 @@ export default class FilmsPresenter {
       this.#reloadFilterList();
       this.#reloadProfile();
       this.#renderContainer();
-      console.log(updateType, data);
     }
 
     this.#updateFilters();

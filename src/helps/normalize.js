@@ -44,6 +44,7 @@ export const normalizeMovie = (
   isWatched,
   isFavorite,
   watchingDate,
+  newComment: {emoji: '', text: ''},
 });
 
 export const normalizeMovieServer = (
@@ -100,15 +101,15 @@ export const normalizeComment = ({id, comment, emotion, author, date}) => ({
   text: comment,
   emotion,
   author,
-  date,
+  date
 });
 
 export const normalizeCommentServer = ({text, emotion}) => ({
   comment: text,
-  emotion,
+  emotion
 });
 
 export const normalizeUser = ({avatar, rating}) => ({
   avatar,
-  rating,
+  rating
 });
