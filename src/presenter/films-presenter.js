@@ -5,10 +5,12 @@ import FilmCardView from '../view/film-view';
 import PopupCardView from '../view/film-details-view';
 import ButtonMoreView from '../view/more-views';
 import {filterFavoriteMovies, filterWatchedMovies, filterWatchingMovies, sortByDate, sortByRating} from '../utils';
-import {SortType, FilterType} from '../const';
+import {SortType, FilterType, UpdateType} from '../const';
 import SiteMenuView from '../view/site-menu-view';
 import StatsView from '../view/stats-view';
 import {FilmsSectionViewEmpty} from '../view/films-section-empty';
+import ProfileSectionView from '../view/profile-view';
+import FooterStatisticsView from '../view/statistics-view';
 
 const FILM_COUNT_PER_STEP = 5;
 
@@ -24,6 +26,8 @@ export default class FilmsPresenter {
   #filtersComponent = null;
   #noFilmsComponent = new FilmsSectionViewEmpty();
   #loadMoreButtonComponent = new ButtonMoreView();
+  #profileComponent = new ProfileSectionView();
+  #footerComponent = new FooterStatisticsView();
   #films = [];
   #watchMovies = [];
   #watchedMovies = [];
@@ -32,6 +36,7 @@ export default class FilmsPresenter {
   #filmPresenter = new Map();
   #currentSortType = SortType.DEFAULT;
   #createdFilms = [];
+  #currentFilm = null;
 
   // сюда принимаем данные из моделей и записываем их в переменные презентера и с нимим работаем
   constructor(filmsContainer, moviesModel, commentsModel, filterModel) {
@@ -79,10 +84,23 @@ export default class FilmsPresenter {
   init = () => {
     this.#films = [...this.films];
 
+    this.#updateFilters();
+    this.#renderProfile();
+    this.#renderFooter();
     this.#renderFiltersList();
     this.#renderSortList();
     this.#renderContainer();
   };
+
+  #renderProfile = () => {
+    this.#profileComponent.ratingSet(this.#watchedMovies.length);
+    render(document.querySelector('.header'), this.#profileComponent, RenderPosition.BEFOREEND);
+  }
+
+  #renderFooter = () => {
+    this.#footerComponent.setNumber(this.#films.length);
+    render(document.querySelector('.footer__statistics'), this.#footerComponent, RenderPosition.BEFOREEND);
+  }
 
   // Сортировка принимает в себя тип сортировки;
   // проверяем текуший тип соортировки если да то ничего не возврашаем;
@@ -149,19 +167,11 @@ export default class FilmsPresenter {
   };
 
   // рендер 1 карточки фильма и создание попап компонента;
-  #renderFilm = (film, commentary) => {
-    const filmComponent = new FilmCardView(film, commentary);
+  #renderFilm = (film) => {
+    const filmComponent = new FilmCardView(film);
     const filmsContainerElement = this.#filmsSectionComponent.element.querySelector('.films-list__container');
 
-    filmComponent.element.querySelector('.film-card__link').addEventListener(('click'), () => {
-      if (this.#activePopup) {
-        remove(this.#activePopup);
-      }
-
-      this.#createPopup(film, commentary);
-      document.addEventListener('keydown', this.#escKeyDownHandler);
-      document.addEventListener('click', this.#closeButton);
-    });
+    filmComponent.setClickHandler(this.#handleFilmClick.bind(this));
 
     render(filmsContainerElement, filmComponent, RenderPosition.BEFOREEND);
 
@@ -186,9 +196,21 @@ export default class FilmsPresenter {
     popupComponent.setAddCommentClickHandler(this.#addComment.bind(this));
   };
 
+  #handleFilmClick = (id) => {
+    this.#currentFilm = this.#films.find((film) => film.id === id);
+    this.#commentsModel.loadComments(this.#currentFilm.id);
+
+    if (this.#activePopup) {
+      remove(this.#activePopup);
+    }
+
+    document.addEventListener('keydown', this.#escKeyDownHandler);
+    document.addEventListener('click', this.#closeButton);
+  }
+
   // Проходимся по циклу
   #renderFilms = (from, to) => {
-    this.#createdFilms = [...this.#createdFilms, ...this.#films.slice(from, to).map((film) => this.#renderFilm(film, this.#commentsModel.comments))];
+    this.#createdFilms = [...this.#createdFilms, ...this.#films.slice(from, to).map((film) => this.#renderFilm(film))];
   };
 
   // Функция загрузки фильпов по клику
@@ -277,6 +299,11 @@ export default class FilmsPresenter {
     this.#renderFiltersList();
   };
 
+  #reloadProfile = () => {
+    remove(this.#profileComponent);
+    this.#renderProfile();
+  }
+
   // Слушатель Escape
   #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
@@ -300,14 +327,7 @@ export default class FilmsPresenter {
     const findFilm = this.#films.find((film) => film.id === id);
     findFilm.isFavorite = !findFilm.isFavorite;
 
-
-    if (this.#activePopup) {
-      this.#activePopup.updateData(findFilm, this.#commentsModel.comments);
-    }
-    this.#moviesModel.updateFilm('film FavoriteClick', findFilm);
-    this.#reloadFilterList();
-    this.#clearFilmList();
-    this.#renderContainer();
+    this.#moviesModel.updateFilm(UpdateType.CONTROLS, findFilm);
   };
 
   // Слушатель клика просмотренно
@@ -315,13 +335,7 @@ export default class FilmsPresenter {
     const findFilm = this.#films.find((film) => film.id === id);
     findFilm.isWatched = !findFilm.isWatched;
 
-    if (this.#activePopup) {
-      this.#activePopup.updateData(findFilm, this.#commentsModel.comments);
-    }
-    this.#moviesModel.updateFilm('film WatchedClick', findFilm);
-    this.#reloadFilterList();
-    this.#clearFilmList();
-    this.#renderContainer();
+    this.#moviesModel.updateFilm(UpdateType.CONTROLS, findFilm);
   };
 
   // Слушатель клика для добавления в список просмотренных
@@ -329,13 +343,7 @@ export default class FilmsPresenter {
     const findFilm = this.#films.find((film) => film.id === id);
     findFilm.isWatchlist = !findFilm.isWatchlist;
 
-    if (this.#activePopup) {
-      this.#activePopup.updateData(findFilm, this.#commentsModel.comments);
-    }
-    this.#moviesModel.updateFilm('film WatchlistClick', findFilm);
-    this.#reloadFilterList();
-    this.#clearFilmList();
-    this.#renderContainer();
+    this.#moviesModel.updateFilm(UpdateType.CONTROLS, findFilm);
   };
 
   #deleteComment = (id) => {
@@ -366,9 +374,28 @@ export default class FilmsPresenter {
   };
 
   #handleModelEvent = (updateType, data) => {
-    console.log(updateType, data);
-    if (updateType === 'load films') {
+
+    if (updateType === UpdateType.LOAD_COMMENTS) {
+      this.#createPopup(this.#currentFilm, data);
+    }
+
+    if (updateType === UpdateType.INIT) {
       this.init();
     }
+
+    if (updateType === UpdateType.CONTROLS) {
+      if (this.#activePopup) {
+        this.#activePopup.updateData(data, this.#commentsModel.comments);
+      }
+
+      this.#reloadFilterList();
+      this.#clearFilmList();
+      this.#reloadProfile();
+      this.#renderContainer();
+    }
+
+    this.#updateFilters();
   };
 }
+// вторая дз
+// реализовать добавление и уадление комментов

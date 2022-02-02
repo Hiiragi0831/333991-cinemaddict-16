@@ -6,8 +6,7 @@ const createPopupTemplate = (film, comments, currentEmoji, currentText) => {
   const watchlistClassName = film.isWatchlist ? 'film-details__control-button--active' : '';
   const watchedClassName = film.isWatched ? 'film-details__control-button--active' : '';
   const favoriteClassName = film.isFavorite ? 'film-details__control-button--active' : '';
-
-  const commentsMove = [];
+  const date = new Date (film.releaseDate);
 
   const createGenreTemplate = (genresArr) => (
     genresArr.map((genre) => `<span class="film-details__genre">${genre}</span>`).join('')
@@ -22,18 +21,12 @@ const createPopupTemplate = (film, comments, currentEmoji, currentText) => {
         <p class="film-details__comment-text">${he.encode(comment.text)}</p>
         <p class="film-details__comment-info">
           <span class="film-details__comment-author">${he.encode(comment.author)}</span>
-          <span class="film-details__comment-day">${comment.date.format('DD/MM/YYYY HH:mm')}</span>
+          <span class="film-details__comment-day">${dayjs(comment.date).format('DD/MM/YYYY HH:mm')} </span>
           <button class="film-details__comment-delete" data-id="${comment.id}">Delete</button>
         </p>
       </div>
     </li>`).join(' ')
   );
-
-  for (let i = 0; i < comments.length; i++) {
-    if (film.id === comments[i].filmId) {
-      commentsMove.push(comments[i]);
-    }
-  }
 
   return `<section class="film-details">
     <form class="film-details__inner" action="" method="get">
@@ -43,7 +36,7 @@ const createPopupTemplate = (film, comments, currentEmoji, currentText) => {
         </div>
         <div class="film-details__info-wrap">
           <div class="film-details__poster">
-            <img class="film-details__poster-img" src="${film.image}" alt="${film.title}">
+            <img class="film-details__poster-img" src="${film.poster}" alt="${film.title}">
 
             <p class="film-details__age">${film.age}+</p>
           </div>
@@ -52,7 +45,7 @@ const createPopupTemplate = (film, comments, currentEmoji, currentText) => {
             <div class="film-details__info-head">
               <div class="film-details__title-wrap">
                 <h3 class="film-details__title">${film.title}</h3>
-                <p class="film-details__title-original">Original: ${film.title}</p>
+                <p class="film-details__title-original">Original: ${film.originalTitle}</p>
               </div>
 
               <div class="film-details__rating">
@@ -67,26 +60,26 @@ const createPopupTemplate = (film, comments, currentEmoji, currentText) => {
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Writers</td>
-                <td class="film-details__cell">${film.writers}</td>
+                <td class="film-details__cell">${film.writers.join(', ')}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Actors</td>
-                <td class="film-details__cell">${film.actors}</td>
+                <td class="film-details__cell">${film.actors.join(', ')}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Release Date</td>
-                <td class="film-details__cell">${film.date.format('DD MMMM YYYY')}</td>
+                <td class="film-details__cell">${dayjs(date).format('DD MMMM YYYY')}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Runtime</td>
-                <td class="film-details__cell">${film.runTime}</td>
+                <td class="film-details__cell">${dayjs.duration(film.runtime, 'minutes').format('H[h] m[m]')}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Country</td>
                 <td class="film-details__cell">${film.country}</td>
               </tr>
               <tr class="film-details__row">
-                <td class="film-details__term">Genres</td>
+                <td class="film-details__term">${film.genres.length > 1 ? 'Genres' : 'Genre'}</td>
                 <td class="film-details__cell">
                   ${createGenreTemplate(film.genres)}
                 </td>
@@ -108,10 +101,10 @@ const createPopupTemplate = (film, comments, currentEmoji, currentText) => {
 
       <div class="film-details__bottom-container">
         <section class="film-details__comments-wrap">
-          <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${commentsMove.length}</span></h3>
+          <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.length}</span></h3>
 
           <ul class="film-details__comments-list">
-            ${createCommentTemplate(commentsMove)}
+            ${createCommentTemplate(comments)}
           </ul>
 
           <div class="film-details__new-comment">
@@ -181,7 +174,7 @@ export default class PopupCardView extends SmartView {
     }
 
     if (filmUpdate) {
-      this.#films = {...this.#films, ...filmUpdate};
+      this.#films = filmUpdate;
     }
 
     if (commentsUpdate) {
@@ -211,46 +204,43 @@ export default class PopupCardView extends SmartView {
   }
 
   setWatchedClickHandler = (callback) => {
-    this._callback.WatchedClick = callback;
+    this._callback.watchedClick = callback;
     this.element.querySelector('.film-details__control-button--watched').addEventListener('click', this.#watchedClickHandler);
   }
 
   setWatchlistClickHandler = (callback) => {
-    this._callback.WatchlistClick = callback;
+    this._callback.watchlistClick = callback;
     this.element.querySelector('.film-details__control-button--watchlist').addEventListener('click', this.#watchlistClickHandler);
   }
 
   setEmojiClickHandler = (callback) => {
-    this._callback.EmojiClick = callback;
+    this._callback.emojiClick = callback;
     this.element.querySelector('.film-details__emoji-list').addEventListener('click', this.#emojiClickHandler);
   }
 
   setDeleteClickHandler = (callback) => {
-    this._callback.DeleteClick = callback;
+    this._callback.deleteClick = callback;
     this.element.querySelector('.film-details__comments-list').addEventListener('click', this.#deleteCommentClickHandler);
   }
 
   setAddCommentClickHandler = (callback) => {
-    this._callback.AddComment = callback;
+    this._callback.addComment = callback;
     this.element.querySelector('.film-details__comment-input').addEventListener('keyup', this.#addCommentClickHandler);
   }
 
   #favoriteClickHandler = (evt) => {
     evt.preventDefault();
     this._callback.favoriteClick(this.#films.id);
-    evt.target.classList.toggle('film-details__control-button--active');
   }
 
   #watchlistClickHandler = (evt) => {
     evt.preventDefault();
-    this._callback.WatchlistClick(this.#films.id);
-    evt.target.classList.toggle('film-details__control-button--active');
+    this._callback.watchlistClick(this.#films.id);
   }
 
   #watchedClickHandler = (evt) => {
     evt.preventDefault();
-    this._callback.WatchedClick(this.#films.id);
-    evt.target.classList.toggle('film-details__control-button--active');
+    this._callback.watchedClick(this.#films.id);
   }
 
   #emojiClickHandler = (evt) => {
@@ -260,14 +250,14 @@ export default class PopupCardView extends SmartView {
       this.#currentEmoji = evt.target.dataset.emoji;
     }
 
-    this._callback.EmojiClick(this.#currentEmoji);
+    this._callback.emojiClick(this.#currentEmoji);
   }
 
   #deleteCommentClickHandler = (evt) => {
     evt.preventDefault();
 
     if (evt.target.tagName === 'BUTTON') {
-      this._callback.DeleteClick(evt.target.dataset.id);
+      this._callback.deleteClick(evt.target.dataset.id);
     }
   }
 
@@ -287,7 +277,7 @@ export default class PopupCardView extends SmartView {
           date: dayjs(new Date()),
         };
         this.resetData();
-        this._callback.AddComment(newComment);
+        this._callback.addComment(newComment);
       }
     }
   }

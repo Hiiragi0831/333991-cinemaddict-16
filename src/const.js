@@ -26,3 +26,28 @@ export const FilterStats = {
   MONTH: 'month',
   YEAR: 'year',
 };
+
+export const Urls = {
+  MOVIES: 'movies',
+  COMMENTS: 'comments',
+};
+
+export const Methods = {
+  GET: 'GET',
+  PUT: 'PUT',
+  POST: 'POST',
+  DELETE: 'DELETE',
+};
+
+export const UpdateType = {
+  INIT: 'INIT',
+  ERROR: 'ERROR',
+  LOAD_COMMENTS: 'LOAD_COMMENTS',
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR',
+  CONTROLS: 'CONTROLS',
+};
+
+export const MINUTES_IN_HOUR = 60;
+export const BAR_HEIGHT = 50;
