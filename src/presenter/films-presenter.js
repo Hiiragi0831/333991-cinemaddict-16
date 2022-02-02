@@ -326,6 +326,7 @@ export default class FilmsPresenter {
   #handleFavoriteClick = (id) => {
     const findFilm = this.#films.find((film) => film.id === id);
     findFilm.isFavorite = !findFilm.isFavorite;
+
     this.#moviesModel.updateFilm(UpdateType.CONTROLS, findFilm);
   };
 
@@ -333,6 +334,7 @@ export default class FilmsPresenter {
   #handleWatchedClick = (id) => {
     const findFilm = this.#films.find((film) => film.id === id);
     findFilm.isWatched = !findFilm.isWatched;
+
     this.#moviesModel.updateFilm(UpdateType.CONTROLS, findFilm);
   };
 
@@ -340,6 +342,7 @@ export default class FilmsPresenter {
   #handleWatchlistClick = (id) => {
     const findFilm = this.#films.find((film) => film.id === id);
     findFilm.isWatchlist = !findFilm.isWatchlist;
+
     this.#moviesModel.updateFilm(UpdateType.CONTROLS, findFilm);
   };
 
