@@ -20,11 +20,31 @@ export default class MoviesModel extends AbstractObservable {
     try {
       const response = await this.#apiService.films;
       this.#films = normalizeArray(await ApiService.parseResponse(response), normalizeMovie);
+      this._notify(UpdateType.INIT, this.#films);
     } catch (err) {
       this.#films = [];
+      this._notify(UpdateType.ERROR_LOAD_FILM, this.#films);
+    }
+  }
+
+  addComment = (movieId, comments) => {
+    const currentMovie = this.#films.find((movie) => movie.id === movieId);
+
+    if (!currentMovie) {
+      throw new Error('Movie doesn\'t exist.');
     }
 
-    this._notify(UpdateType.INIT, this.#films);
+    currentMovie.comments = comments;
+  }
+
+  deleteComment = (commentId) => {
+    const currentMovie = this.#films.find((movie) => movie.comments.includes(commentId));
+    const commentIndex = currentMovie.comments.findIndex((comment) => comment === commentId);
+
+    currentMovie.comments = [
+      ...currentMovie.comments.slice(0, commentIndex),
+      ...currentMovie.comments.slice(commentIndex + 1),
+    ];
   }
 
   updateFilm = async (updateType, updatedMovie) => {
@@ -44,7 +64,6 @@ export default class MoviesModel extends AbstractObservable {
       ];
 
       this._notify(updateType, updatedMovie);
-
     } catch (err) {
       this._notify(UpdateType.ERROR, err);
     }
