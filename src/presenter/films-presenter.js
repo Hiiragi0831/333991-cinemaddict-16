@@ -365,8 +365,7 @@ export default class FilmsPresenter {
     this.#activePopup.updateData({newComment: {emoji}});
   };
 
-  #handleModelEvent = (updateType, data) => {
-    console.log(updateType, data);
+  #handleModelEvent = (updateType) => {
     if (updateType === 'load films') {
       this.init();
     }
