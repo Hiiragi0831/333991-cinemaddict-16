@@ -114,6 +114,8 @@ const MAX_DESCRIPTIONS_COUNT = 5;
 const START_DATE = new Date(1940, 0, 1);
 const END_DATE = new Date(2000, 0, 1);
 const MAX_AGE = 18;
+const BAR_HEIGHT = 50;
+const MINUTES_IN_HOUR = 60;
 
 export {
   FILMS_TITLES,
@@ -137,5 +139,7 @@ export {
   MAX_DESCRIPTIONS_COUNT,
   START_DATE,
   END_DATE,
-  MAX_AGE
+  MAX_AGE,
+  BAR_HEIGHT,
+  MINUTES_IN_HOUR
 };

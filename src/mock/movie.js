@@ -50,5 +50,6 @@ export const generateMovie = () => {
     country: generateRandomString(FILMS_COUNTRIES),
     age: getRandomInteger(DEFAULT_MIN_NUMBER, MAX_AGE),
     newComment: {emoji: null},
+    watchingDate: generateDate(new Date(2022, 0, 1), new Date(2022, 0, 26)),
   };
 };

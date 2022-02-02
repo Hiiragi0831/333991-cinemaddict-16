@@ -1,4 +1,4 @@
-import FilmsSectionView, {FilmsSectionViewEmpty} from '../view/films-section-view';
+import FilmsSectionView from '../view/films-section-view';
 import SortLinksView from '../view/sort-view';
 import {remove, render, RenderPosition} from '../render';
 import FilmCardView from '../view/film-view';
@@ -7,6 +7,8 @@ import ButtonMoreView from '../view/more-views';
 import {filterFavoriteMovies, filterWatchedMovies, filterWatchingMovies, sortByDate, sortByRating} from '../utils';
 import {SortType, FilterType} from '../const';
 import SiteMenuView from '../view/site-menu-view';
+import StatsView from '../view/stats-view';
+import {FilmsSectionViewEmpty} from '../view/films-section-empty';
 
 const FILM_COUNT_PER_STEP = 5;
 
@@ -16,6 +18,7 @@ export default class FilmsPresenter {
   #moviesModel = null;
   #commentsModel = null;
   #filterModel = null;
+  #statsView = null;
   #filmsSectionComponent = new FilmsSectionView();
   #sortComponent = new SortLinksView();
   #filtersComponent = null;
@@ -28,7 +31,6 @@ export default class FilmsPresenter {
   #renderedFilmCount = FILM_COUNT_PER_STEP;
   #filmPresenter = new Map();
   #currentSortType = SortType.DEFAULT;
-
   #createdFilms = [];
 
   // сюда принимаем данные из моделей и записываем их в переменные презентера и с нимим работаем
@@ -57,6 +59,8 @@ export default class FilmsPresenter {
       case FilterType.FAVORITES:
         movies = filterFavoriteMovies(movies);
         break;
+      case FilterType.STATS:
+        break;
     }
     switch (this.#currentSortType) {
       case SortType.DEFAULT:
@@ -78,7 +82,7 @@ export default class FilmsPresenter {
     this.#renderFiltersList();
     this.#renderSortList();
     this.#renderContainer();
-  }
+  };
 
   // Сортировка принимает в себя тип сортировки;
   // проверяем текуший тип соортировки если да то ничего не возврашаем;
@@ -93,14 +97,14 @@ export default class FilmsPresenter {
     this.#currentSortType = sortType;
     this.#clearFilmList();
     this.#renderContainer();
-  }
+  };
 
   // рендер списка сортировки;
   // дергаем обработчик кликов;
   #renderSortList = () => {
     render(this.#filmsContainer, this.#sortComponent, RenderPosition.BEFOREEND);
     this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
-  }
+  };
 
   // проверяем какой вид фильтра кликаем;
   // устанавливаем тип фильра на который кликнули;
@@ -115,18 +119,19 @@ export default class FilmsPresenter {
 
     this.#filterModel.currentFilter = filterType;
     this.#currentSortType = SortType.DEFAULT;
+    this.#renderedFilmCount = FILM_COUNT_PER_STEP;
 
     this.#clearFilmList();
     this.#reloadSortList();
     this.#renderContainer();
-  }
+  };
 
   // записываем в переменные данные по условиям фильтрации;
   #updateFilters = () => {
     this.#watchMovies = filterWatchingMovies(this.#moviesModel.films);
     this.#watchedMovies = filterWatchedMovies(this.#moviesModel.films);
     this.#favoriteMovies = filterFavoriteMovies(this.#moviesModel.films);
-  }
+  };
 
   // дергаем функцию;
   // передаем данные о количестве фильмов в конкретной категории в модель;
@@ -141,7 +146,7 @@ export default class FilmsPresenter {
 
     render(this.#filmsContainer, this.#filtersComponent, RenderPosition.AFTERBEGIN);
     this.#filtersComponent.setFilterTypeChangeHandler(this.#handleFilterTypeChange);
-  }
+  };
 
   // рендер 1 карточки фильма и создание попап компонента;
   #renderFilm = (film, commentary) => {
@@ -165,7 +170,7 @@ export default class FilmsPresenter {
     filmComponent.setWatchedClickHandler(this.#handleWatchedClick.bind(this));
     filmComponent.setWatchlistClickHandler(this.#handleWatchlistClick.bind(this));
     return filmComponent;
-  }
+  };
 
   #createPopup = (film, commentary) => {
     const popupComponent = new PopupCardView(film, commentary);
@@ -179,40 +184,32 @@ export default class FilmsPresenter {
     popupComponent.setEmojiClickHandler(this.#handleEmojiClick.bind(this));
     popupComponent.setDeleteClickHandler(this.#deleteComment.bind(this));
     popupComponent.setAddCommentClickHandler(this.#addComment.bind(this));
-  }
+  };
 
   // Проходимся по циклу
   #renderFilms = (from, to) => {
     this.#createdFilms = [...this.#createdFilms, ...this.#films.slice(from, to).map((film) => this.#renderFilm(film, this.#commentsModel.comments))];
-  }
-
-  // Если фильмов нет, то рендерим компонент с надписью пусто (Надо переделать на строку)
-  #renderNoFilms = () => {
-    render(this.#filmsContainer, this.#noFilmsComponent, RenderPosition.BEFOREEND);
-  }
+  };
 
   // Функция загрузки фильпов по клику
   #initLoadMoreButtonClickHandler = () => {
-    const filmsCount = this.films.length;
-    let renderedTaskCount = this.#renderedFilmCount;
-
     this.#loadMoreButtonComponent.setClickHandler(() => {
-      this.#renderFilms(renderedTaskCount, renderedTaskCount + this.#renderedFilmCount);
+      this.#renderFilms(this.#renderedFilmCount, this.#renderedFilmCount + FILM_COUNT_PER_STEP);
 
-      renderedTaskCount += this.#renderedFilmCount;
+      this.#renderedFilmCount += FILM_COUNT_PER_STEP;
 
-      if (renderedTaskCount >= filmsCount) {
+      if (this.#renderedFilmCount >= this.films.length) {
         remove(this.#loadMoreButtonComponent);
       }
     });
-  }
+  };
 
   // Вывод кнопки
   #renderLoadMoreButton = () => {
     const filmsContainerElement = this.#filmsSectionComponent.element.querySelector('.films-list__container');
     render(filmsContainerElement, this.#loadMoreButtonComponent, RenderPosition.AFTEREND);
     this.#initLoadMoreButtonClickHandler();
-  }
+  };
 
   // Вывод контейнера для фильмов и рендер
   #renderContainer = () => {
@@ -222,12 +219,27 @@ export default class FilmsPresenter {
       if (this.#filmsSectionComponent) {
         remove(this.#filmsSectionComponent);
       }
-      this.#renderNoFilms();
+
+      this.#noFilmsComponent.filterTypeEmpty(this.#filterModel.currentFilter);
+      render(this.#filmsContainer, this.#noFilmsComponent, RenderPosition.BEFOREEND);
       return;
     }
 
     if (this.#noFilmsComponent) {
       remove(this.#noFilmsComponent);
+    }
+
+    if (this.#statsView) {
+      this.#statsView.removeElement();
+    }
+
+    if (this.#filterModel.currentFilter === FilterType.STATS) {
+      remove(this.#filmsSectionComponent);
+      remove(this.#sortComponent);
+      this.#statsView = new StatsView(this.#watchedMovies);
+      render(this.#filmsContainer, this.#statsView, RenderPosition.BEFOREEND);
+      this.#statsView.updateElement();
+      return;
     }
 
     render(this.#filmsContainer, this.#filmsSectionComponent, RenderPosition.BEFOREEND);
@@ -237,33 +249,33 @@ export default class FilmsPresenter {
     if (filmsCount > this.#renderedFilmCount) {
       this.#renderLoadMoreButton();
     }
-  }
+  };
 
   // Очистка всех карточек фильмов
   #clearFilmList = () => {
     this.#createdFilms.forEach((film) => remove(film));
     remove(this.#loadMoreButtonComponent);
     this.#createdFilms = [];
-  }
+  };
 
   #removeSortList = () => {
     remove(this.#sortComponent);
-  }
+  };
 
   #removeFilterList = () => {
     remove(this.#filtersComponent);
-  }
+  };
 
   // очистка и рендер списка сортирровки
   #reloadSortList = () => {
     this.#removeSortList();
     this.#renderSortList();
-  }
+  };
 
   #reloadFilterList = () => {
     this.#removeFilterList();
     this.#renderFiltersList();
-  }
+  };
 
   // Слушатель Escape
   #escKeyDownHandler = (evt) => {
@@ -272,7 +284,7 @@ export default class FilmsPresenter {
       remove(this.#activePopup);
       document.querySelector('body').classList.remove('hide-overflow');
     }
-  }
+  };
 
   // Слушатель кнопки закрытия
   #closeButton = (evt) => {
@@ -281,12 +293,14 @@ export default class FilmsPresenter {
       remove(this.#activePopup);
       document.querySelector('body').classList.remove('hide-overflow');
     }
-  }
+  };
 
   // Слушатель клика избранного
   #handleFavoriteClick = (id) => {
     const findFilm = this.#films.find((film) => film.id === id);
     findFilm.isFavorite = !findFilm.isFavorite;
+
+
     if (this.#activePopup) {
       this.#activePopup.updateData(findFilm, this.#commentsModel.comments);
     }
@@ -294,12 +308,13 @@ export default class FilmsPresenter {
     this.#reloadFilterList();
     this.#clearFilmList();
     this.#renderContainer();
-  }
+  };
 
   // Слушатель клика просмотренно
   #handleWatchedClick = (id) => {
     const findFilm = this.#films.find((film) => film.id === id);
     findFilm.isWatched = !findFilm.isWatched;
+
     if (this.#activePopup) {
       this.#activePopup.updateData(findFilm, this.#commentsModel.comments);
     }
@@ -307,12 +322,13 @@ export default class FilmsPresenter {
     this.#reloadFilterList();
     this.#clearFilmList();
     this.#renderContainer();
-  }
+  };
 
   // Слушатель клика для добавления в список просмотренных
   #handleWatchlistClick = (id) => {
     const findFilm = this.#films.find((film) => film.id === id);
     findFilm.isWatchlist = !findFilm.isWatchlist;
+
     if (this.#activePopup) {
       this.#activePopup.updateData(findFilm, this.#commentsModel.comments);
     }
@@ -320,7 +336,7 @@ export default class FilmsPresenter {
     this.#reloadFilterList();
     this.#clearFilmList();
     this.#renderContainer();
-  }
+  };
 
   #deleteComment = (id) => {
     const findComment = this.#commentsModel.comments.find((comment) => comment.id === id);
@@ -331,7 +347,7 @@ export default class FilmsPresenter {
     this.#reloadFilterList();
     this.#clearFilmList();
     this.#renderContainer();
-  }
+  };
 
   #addComment = (newComment) => {
     this.#commentsModel.addComment(newComment);
@@ -342,23 +358,17 @@ export default class FilmsPresenter {
     this.#reloadFilterList();
     this.#clearFilmList();
     this.#renderContainer();
-  }
+  };
 
   // Слушатель для комментария клик по эмоджи
   #handleEmojiClick = (emoji) => {
     this.#activePopup.updateData({newComment: {emoji}});
-  }
+  };
 
-  // хрен пойми что!!!
   #handleModelEvent = (updateType, data) => {
     console.log(updateType, data);
     if (updateType === 'load films') {
       this.init();
     }
-
-    // В зависимости от типа изменений решаем, что делать:
-    // - обновить часть списка (например, когда поменялось описание)
-    // - обновить список (например, когда задача ушла в архив)
-    // - обновить всю доску (например, при переключении фильтра)
-  }
+  };
 }

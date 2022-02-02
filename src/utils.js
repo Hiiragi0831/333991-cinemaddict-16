@@ -1,7 +1,10 @@
 import dayjs from 'dayjs';
-import {END_DATE, MAX_GAP_MINUTES, MIN_GAP_MINUTES, START_DATE} from './mock/constants';
+import isBetween from 'dayjs/plugin/isBetween';
+import {END_DATE, MAX_GAP_MINUTES, MIN_GAP_MINUTES, START_DATE, MINUTES_IN_HOUR} from './mock/constants';
 import {generateComment} from './mock/comment';
-import {SortType} from './const';
+import {SortType, TimeUnits, FilterStats} from './const';
+
+dayjs.extend(isBetween);
 
 export const getRandomInteger = (a = 0, b = 1) => {
   const lower = Math.ceil(Math.min(a, b));
@@ -49,7 +52,7 @@ export const generateRandomString = (arr) => {
 
 export const generateRuntime= () => getRandomInteger(MIN_GAP_MINUTES, MAX_GAP_MINUTES);
 
-export const generateDate= () => dayjs(getRandomDate(START_DATE, END_DATE));
+export const generateDate= (start = START_DATE, end = END_DATE) => dayjs(getRandomDate(start, end));
 
 export function generateComments (arr) {
   const newArr = [];
@@ -74,8 +77,24 @@ export const sortByDate = (films) => films.sort(byField(SortType.DATE));
 export const filterWatchingMovies = (films) => films.filter((film) => film.isWatchlist);
 export const filterWatchedMovies = (films) => films.filter((film) => film.isWatched);
 export const filterFavoriteMovies = (films) => films.filter((film) => film.isFavorite);
+export const filterMoviesByDate = (films, timeUnit) => films.filter(({watchingDate}) => dayjs(watchingDate).isBetween(dayjs().subtract(1, timeUnit), dayjs()));
 
-// что и для чего?? судя по всему что-то за кем-то следит
+export const filterStats = (films, filter) => {
+  switch (filter) {
+    case FilterStats.TODAY:
+      return filterMoviesByDate(films, TimeUnits.DAY);
+    case FilterStats.WEEK:
+      return filterMoviesByDate(films, TimeUnits.WEEK);
+    case FilterStats.MONTH:
+      return filterMoviesByDate(films, TimeUnits.MONTH);
+    case FilterStats.YEAR:
+      return filterMoviesByDate(films, TimeUnits.YEAR);
+    default:
+      return films;
+  }
+};
+
+
 export default class AbstractObservable {
   #observers = new Set();
 
@@ -91,3 +110,34 @@ export default class AbstractObservable {
     this.#observers.forEach((observer) => observer(event, payload));
   }
 }
+
+export const getDuration = (films) => films.reduce(((prevValue, {runTime}) => prevValue + runTime), 0);
+export const getDurationHours = (duration) => Math.floor(duration / MINUTES_IN_HOUR);
+export const getDurationMinutes = (duration) => duration % MINUTES_IN_HOUR;
+
+export const getStatsInfo = (films) => {
+  const stats = {};
+
+  for (let i = 0; i < films.length; i++) {
+    for (let j = 0; j < films[i].genres.length; j++) {
+      if (stats[films[i].genres[j]]) {
+        stats[films[i].genres[j]] += 1;
+        continue;
+      }
+
+      stats[films[i].genres[j]] = 1;
+    }
+  }
+
+  return stats;
+};
+
+export const sortChartGenres = (chartData) => {
+  const genres = Object.keys(chartData);
+  return genres.sort((firstGenre, secondGenre) => chartData[secondGenre] - firstGenre[secondGenre]);
+};
+
+export const sortChartValues = (chartData) => {
+  const values = Object.values(chartData);
+  return values.sort((firstValue, secondValue) => secondValue - firstValue);
+};
