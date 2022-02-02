@@ -29,10 +29,10 @@ export const generateMovie = () => {
   const description = generateRandomMuchString(FILMS_DESCRIPTIONS, MAX_DESCRIPTIONS_COUNT);
   const writers = generateRandomMuchString(FILMS_SCREEN_WRITERS, MAX_DESCRIPTIONS_COUNT).join(', ');
   const actors = generateRandomMuchString(FILMS_ACTORS, MAX_DESCRIPTIONS_COUNT).join(', ');
-  const idx = Math.random().toString(10).substr(2, 9);
+  const id = Math.random().toString(10).substr(2, 9);
 
   return {
-    idx,
+    id,
     title: generateRandomString(FILMS_TITLES),
     date,
     description: description.join(' '),
