@@ -349,12 +349,11 @@ export default class FilmsPresenter {
   #deleteComment = (id) => {
     const findComment = this.#commentsModel.comments.find((comment) => comment.id === id);
     this.#commentsModel.deleteComment(findComment.id);
-    this.#moviesModel.updateFilm(UpdateType.DELETE_COMMENT, this.#currentFilm);
+    this.#moviesModel.deleteComment(findComment.id);
   };
 
   #addComment = (newComment) => {
-    this.#commentsModel.addComment(this.#currentFilm.id, newComment);
-    this.#moviesModel.updateFilm(UpdateType.ADD_COMMENT, this.#currentFilm);
+    this.#commentsModel.addComment(this.#currentFilm.id, newComment, this.#moviesModel.addComment);
   };
 
   // Слушатель для комментария клик по эмоджи
@@ -362,6 +361,13 @@ export default class FilmsPresenter {
     this.#currentFilm.newComment.emoji = emoji;
     this.#activePopup.updateData(this.#currentFilm);
   };
+
+  #reloadApp = () => {
+    this.#clearFilmList();
+    this.#reloadFilterList();
+    this.#reloadProfile();
+    this.#renderContainer();
+  }
 
   #handleModelEvent = (updateType, data) => {
 
@@ -385,33 +391,21 @@ export default class FilmsPresenter {
 
     if (updateType === UpdateType.DELETE_COMMENT) {
       this.#activePopup.updateData(this.#currentFilm, this.#commentsModel.comments);
-      this.#clearFilmList();
-      this.#reloadFilterList();
-      this.#reloadProfile();
-      this.#renderContainer();
+      this.#reloadApp();
     }
 
     if (updateType === UpdateType.ADD_COMMENT) {
       this.#activePopup.updateData(this.#currentFilm, this.#commentsModel.comments);
-      this.#clearFilmList();
-      this.#reloadFilterList();
-      this.#reloadProfile();
-      this.#renderContainer();
+      this.#reloadApp();
     }
 
     if (updateType === UpdateType.CONTROLS) {
       if (this.#activePopup) {
         this.#activePopup.updateData(data, this.#commentsModel.comments);
       }
-
-      this.#clearFilmList();
-      this.#reloadFilterList();
-      this.#reloadProfile();
-      this.#renderContainer();
+      this.#reloadApp();
     }
 
     this.#updateFilters();
   };
 }
-// вторая дз
-// реализовать добавление и уадление комментов

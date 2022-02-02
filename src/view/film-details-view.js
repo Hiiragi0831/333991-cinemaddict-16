@@ -28,7 +28,7 @@ const createPopupTemplate = (film, comments, currentEmoji, currentText, deleting
     genresArr.map((genre) => `<span class="film-details__genre">${genre}</span>`).join('')
   );
 
-  return `<section class="film-details">
+  return `<section class="film-details" data-film-id="${film.id}">
     <form class="film-details__inner" action="" method="get">
       <div class="film-details__top-container">
         <div class="film-details__close">
