@@ -81,5 +81,5 @@ export {
   SortType,
   AUTHORIZATION,
   END_POINT,
-  FILM_COUNT_PER_STEP,
+  FILM_COUNT_PER_STEP
 };

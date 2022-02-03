@@ -44,5 +44,5 @@ const remove = (component) => {
 export {
   render,
   createElement,
-  remove,
+  remove
 };

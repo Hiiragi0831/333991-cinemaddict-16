@@ -77,5 +77,5 @@ export {
   filterFavoriteMovies,
   filterMoviesByDate,
   sortByRating,
-  sortByDate,
+  sortByDate
 };
