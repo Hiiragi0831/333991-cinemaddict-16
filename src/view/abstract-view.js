@@ -1,6 +1,6 @@
 import {createElement} from '../render';
 
-export default class AbstractView {
+class AbstractView {
   #element = null;
   _callback = {};
 
@@ -42,3 +42,5 @@ export default class AbstractView {
     }
   }
 }
+
+export default AbstractView;

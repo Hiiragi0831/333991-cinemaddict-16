@@ -1,6 +1,6 @@
 import AbstractView from './abstract-view.js';
 
-export default class SmartView extends AbstractView {
+class SmartView extends AbstractView {
   _data = {};
 
   updateData = (update) => {
@@ -23,3 +23,5 @@ export default class SmartView extends AbstractView {
     throw new Error('Abstract method not implemented: restoreHandlers');
   }
 }
+
+export default SmartView;

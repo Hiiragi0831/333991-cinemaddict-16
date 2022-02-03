@@ -1,4 +1,4 @@
-export const normalizeMovie = (
+const normalizeMovie = (
   {
     id,
     comments,
@@ -47,7 +47,7 @@ export const normalizeMovie = (
   newComment: {emoji: '', text: ''},
 });
 
-export const normalizeMovieServer = (
+const normalizeMovieServer = (
   {
     id,
     poster,
@@ -96,7 +96,7 @@ export const normalizeMovieServer = (
   },
 });
 
-export const normalizeComment = ({id, comment, emotion, author, date}) => ({
+const normalizeComment = ({id, comment, emotion, author, date}) => ({
   id,
   text: comment,
   emotion,
@@ -104,12 +104,14 @@ export const normalizeComment = ({id, comment, emotion, author, date}) => ({
   date,
 });
 
-export const normalizeCommentServer = ({text, emotion}) => ({
+const normalizeCommentServer = ({text, emotion}) => ({
   comment: text,
   emotion,
 });
 
-export const normalizeUser = ({avatar, rating}) => ({
-  avatar,
-  rating,
-});
+export {
+  normalizeCommentServer,
+  normalizeComment,
+  normalizeMovieServer,
+  normalizeMovie,
+};

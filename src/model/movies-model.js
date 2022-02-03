@@ -1,9 +1,10 @@
-import AbstractObservable, {normalizeArray} from '../utils';
+import {normalizeArray} from '../utils';
 import ApiService from '../api-service';
 import {normalizeMovie} from '../helps/normalize';
 import {UpdateType} from '../const';
+import AbstractObservable from '../view/abstract-observable-view';
 
-export default class MoviesModel extends AbstractObservable {
+class MoviesModel extends AbstractObservable {
   #films = [];
   #apiService = null;
 
@@ -69,3 +70,5 @@ export default class MoviesModel extends AbstractObservable {
     }
   }
 }
+
+export default MoviesModel;

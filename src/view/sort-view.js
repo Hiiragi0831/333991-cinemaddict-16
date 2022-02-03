@@ -9,7 +9,7 @@ const createSortLinksTemplate = () => (
     </ul>`
 );
 
-export default class SortLinksView extends AbstractView {
+class SortLinksView extends AbstractView {
   get template() {
     return createSortLinksTemplate();
   }
@@ -31,3 +31,5 @@ export default class SortLinksView extends AbstractView {
     evt.target.classList.add('sort__button--active');
   }
 }
+
+export default SortLinksView;

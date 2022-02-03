@@ -12,7 +12,7 @@ const createSiteMenuTemplate = (watchListCount, historyCount, favoriteCount, cur
     <a href="#" data-filter-type="${FilterType.STATS}" class="main-navigation__additional ${currentFilter === FilterType.STATS ? 'main-navigation__item--active' : ''}">Stats</a>
   </nav>`);
 
-export default class SiteMenuView extends AbstractView {
+class SiteMenuView extends AbstractView {
   #watchListCount = 0;
   #historyCount = 0;
   #favoriteCount = 0;
@@ -72,3 +72,5 @@ export default class SiteMenuView extends AbstractView {
     evt.target.classList.add('main-navigation__item--active');
   }
 }
+
+export default SiteMenuView;

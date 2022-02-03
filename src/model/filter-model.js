@@ -1,7 +1,7 @@
-import AbstractObservable from '../utils';
+import AbstractObservable from '../view/abstract-observable-view';
 import {FilterType} from '../const';
 
-export default class FilterModel extends AbstractObservable {
+class FilterModel extends AbstractObservable {
   #currentFilter = FilterType.All;
 
   set currentFilter(currentFilter) {
@@ -23,3 +23,5 @@ export default class FilterModel extends AbstractObservable {
     this._notify(updateType, currentFilter);
   }
 }
+
+export default FilterModel;

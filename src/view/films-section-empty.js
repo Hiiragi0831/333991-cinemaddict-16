@@ -9,7 +9,7 @@ const createFilmsSectionEmptyTemplate = (emptyText) => (
   </section>`
 );
 
-export class FilmsSectionViewEmpty extends AbstractView {
+class FilmsSectionEmptyView extends AbstractView {
   #filterType = '';
   #emptyText = '';
 
@@ -34,3 +34,5 @@ export class FilmsSectionViewEmpty extends AbstractView {
     }
   }
 }
+
+export {FilmsSectionEmptyView};

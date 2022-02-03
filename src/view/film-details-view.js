@@ -18,14 +18,14 @@ const createCommentTemplate = (comments, deletingComment, disableDelete, errorCo
     </li>`).join(' ')
 );
 
-const createPopupTemplate = (film, comments, currentEmoji, currentText, deletingComment, disableDelete, errorComment, disableForm) => {
+const createPopupTemplate = (film, comments, currentText, deletingComment, disableDelete, errorComment, disableForm) => {
   const watchlistClassName = film.isWatchlist ? 'film-details__control-button--active' : '';
   const watchedClassName = film.isWatched ? 'film-details__control-button--active' : '';
   const favoriteClassName = film.isFavorite ? 'film-details__control-button--active' : '';
   const date = new Date (film.releaseDate);
 
-  const createGenreTemplate = (genresArr) => (
-    genresArr.map((genre) => `<span class="film-details__genre">${genre}</span>`).join('')
+  const createGenreTemplate = (genres) => (
+    genres.map((genre) => `<span class="film-details__genre">${genre}</span>`).join('')
   );
 
   return `<section class="film-details" data-film-id="${film.id}">
@@ -144,7 +144,7 @@ const createPopupTemplate = (film, comments, currentEmoji, currentText, deleting
   </section>`;
 };
 
-export default class PopupCardView extends SmartView {
+class FilmDetailsView extends SmartView {
   #films = null;
   #comments = null;
   #currentEmoji = null;
@@ -173,7 +173,6 @@ export default class PopupCardView extends SmartView {
     return createPopupTemplate(
       this.#films,
       this.#comments,
-      this.#currentEmoji,
       this.#currentText,
       this.#deletingComment,
       this.#disableDelete,
@@ -286,12 +285,12 @@ export default class PopupCardView extends SmartView {
   }
 
   #addCommentClickHandler = (evt) => {
-    const currentInput = this.element.querySelector('.film-details__comment-input');
+    const filmDetailsCommentInputElement = this.element.querySelector('.film-details__comment-input');
 
-    if (currentInput) {
-      this.#currentText = currentInput.value;
+    if (filmDetailsCommentInputElement) {
+      this.#currentText = filmDetailsCommentInputElement.value;
 
-      if (evt.ctrlKey && evt.key === 'Enter') {
+      if (evt.key === 'Enter' && (evt.metaKey || evt.ctrlKey)) {
         const newComment = {
           movieId: this.#films.id,
           text: this.#currentText,
@@ -304,3 +303,5 @@ export default class PopupCardView extends SmartView {
     }
   }
 }
+
+export default FilmDetailsView;

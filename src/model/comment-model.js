@@ -1,9 +1,10 @@
-import AbstractObservable, {normalizeArray} from '../utils';
+import {normalizeArray} from '../utils';
+import AbstractObservable from '../view/abstract-observable-view';
 import ApiService from '../api-service';
 import {UpdateType} from '../const';
 import {normalizeComment} from '../helps/normalize';
 
-export default class CommentsModel extends AbstractObservable {
+class CommentsModel extends AbstractObservable {
   #comments = [];
   #apiService = null;
 
@@ -65,3 +66,5 @@ export default class CommentsModel extends AbstractObservable {
     }
   }
 }
+
+export default CommentsModel;

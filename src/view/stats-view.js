@@ -43,7 +43,7 @@ const getStatisticsTemplate = (currentFilter, watched, duration, topGenre) =>
     </div>
   </section>`;
 
-export default class StatsView extends SmartView {
+class StatsView extends SmartView {
   #films = [];
   #watched = 0;
   #duration = 0;
@@ -87,10 +87,10 @@ export default class StatsView extends SmartView {
   }
 
   #updateChart = () => {
-    const statisticCtx = document.querySelector('.statistic__chart').getContext('2d');
-    statisticCtx.height = BAR_HEIGHT * this.#labels.length;
+    const statisticChartElement = document.querySelector('.statistic__chart').getContext('2d');
+    statisticChartElement.height = BAR_HEIGHT * this.#labels.length;
 
-    new Chart(statisticCtx, {
+    new Chart(statisticChartElement, {
       plugins: [ChartDataLabels],
       type: 'horizontalBar',
       data: {
@@ -151,11 +151,13 @@ export default class StatsView extends SmartView {
 
   #onClickStatMenu = (evt) => {
     evt.preventDefault();
-    const filter = this.element.querySelector(`#${evt.target.getAttribute('for')}`);
+    const filterElement = this.element.querySelector(`#${evt.target.getAttribute('for')}`);
 
-    if (filter && filter.value !== this.#currentFilter) {
-      this.#currentFilter = filter.value;
+    if (filterElement && filterElement.value !== this.#currentFilter) {
+      this.#currentFilter = filterElement.value;
       this.updateElement();
     }
   }
 }
+
+export default StatsView;

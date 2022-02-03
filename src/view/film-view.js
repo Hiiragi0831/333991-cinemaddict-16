@@ -34,7 +34,7 @@ const createFilmCardTemplate = (film) => {
 };
 
 
-export default class FilmCardView extends AbstractView {
+class FilmView extends AbstractView {
   #films = null;
 
   constructor(films) {
@@ -86,3 +86,5 @@ export default class FilmCardView extends AbstractView {
     this._callback.watchedClick(this.#films.id);
   }
 }
+
+export default FilmView;

@@ -7,7 +7,7 @@ const createProfileTemplate = (rating) => (
   </section>`
 );
 
-export default class ProfileSectionView extends AbstractView {
+class ProfileView extends AbstractView {
   #number = null;
   #rating = '';
 
@@ -29,3 +29,5 @@ export default class ProfileSectionView extends AbstractView {
     }
   }
 }
+
+export default ProfileView;
