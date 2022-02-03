@@ -15,7 +15,7 @@ import {LoadingView} from '../view/loading-view';
 
 class FilmsPresenter {
   #filmsContainer = null;
-  #activePopup = null;
+  #activeFilmDetailsView = null;
   #moviesModel = null;
   #commentsModel = null;
   #filterModel = null;
@@ -175,7 +175,7 @@ class FilmsPresenter {
 
     render(this.#filmsContainer, filmDetailsView, RenderPosition.AFTEREND);
     document.querySelector('body').classList.add('hide-overflow');
-    this.#activePopup = filmDetailsView;
+    this.#activeFilmDetailsView = filmDetailsView;
     filmDetailsView.setFavoriteClickHandler(this.#handleFavoriteClick.bind(this));
     filmDetailsView.setWatchedClickHandler(this.#handleWatchedClick.bind(this));
     filmDetailsView.setWatchlistClickHandler(this.#handleWatchlistClick.bind(this));
@@ -188,8 +188,8 @@ class FilmsPresenter {
     this.#currentFilm = this.#films.find((film) => film.id === id);
     this.#commentsModel.loadComments(this.#currentFilm.id);
 
-    if (this.#activePopup) {
-      remove(this.#activePopup);
+    if (this.#activeFilmDetailsView) {
+      remove(this.#activeFilmDetailsView);
     }
 
     document.addEventListener('keydown', this.#escKeyDownHandler);
@@ -281,7 +281,7 @@ class FilmsPresenter {
   #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
-      remove(this.#activePopup);
+      remove(this.#activeFilmDetailsView);
       document.querySelector('body').classList.remove('hide-overflow');
     }
   };
@@ -289,7 +289,7 @@ class FilmsPresenter {
   #closeButton = (evt) => {
     if (evt.target === document.querySelector('.film-details__close-btn')) {
       evt.preventDefault();
-      remove(this.#activePopup);
+      remove(this.#activeFilmDetailsView);
       document.querySelector('body').classList.remove('hide-overflow');
     }
   };
@@ -320,11 +320,13 @@ class FilmsPresenter {
 
   #addComment = (newComment) => {
     this.#commentsModel.addComment(this.#currentFilm.id, newComment, this.#moviesModel.addComment);
+    this.#activeFilmDetailsView.disableForm = true;
+    this.#activeFilmDetailsView.updateData(this.#currentFilm, this.#commentsModel.comments);
   };
 
   #handleEmojiClick = (emoji) => {
     this.#currentFilm.newComment.emoji = emoji;
-    this.#activePopup.updateData(this.#currentFilm);
+    this.#activeFilmDetailsView.updateData(this.#currentFilm);
   };
 
   #reloadApp = () => {
@@ -355,18 +357,30 @@ class FilmsPresenter {
     }
 
     if (updateType === UpdateType.DELETE_COMMENT) {
-      this.#activePopup.updateData(this.#currentFilm, this.#commentsModel.comments);
+      this.#activeFilmDetailsView.updateData(this.#currentFilm, this.#commentsModel.comments);
       this.#reloadApp();
+    }
+
+    if (updateType === UpdateType.DELETE_COMMENT_ERROR) {
+      this.#activeFilmDetailsView.setErrorComment(data);
+      this.#activeFilmDetailsView.updateData(this.#currentFilm, this.#commentsModel.comments);
     }
 
     if (updateType === UpdateType.ADD_COMMENT) {
-      this.#activePopup.updateData(this.#currentFilm, this.#commentsModel.comments);
+      this.#activeFilmDetailsView.updateData(this.#currentFilm, this.#commentsModel.comments);
       this.#reloadApp();
     }
 
+    if (updateType === UpdateType.ERROR_ADD_COMMENT) {
+      console.log(updateType, data);
+      this.#activeFilmDetailsView.isError = true;
+      this.#activeFilmDetailsView.disableForm = false;
+      this.#activeFilmDetailsView.updateData(this.#currentFilm, this.#commentsModel.comments);
+    }
+
     if (updateType === UpdateType.CONTROLS) {
-      if (this.#activePopup) {
-        this.#activePopup.updateData(data, this.#commentsModel.comments);
+      if (this.#activeFilmDetailsView) {
+        this.#activeFilmDetailsView.updateData(data, this.#commentsModel.comments);
       }
       this.#reloadApp();
     }

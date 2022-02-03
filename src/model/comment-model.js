@@ -39,12 +39,11 @@ class CommentsModel extends AbstractObservable {
       this._notify(UpdateType.ADD_COMMENT, comment);
 
     } catch (err) {
-      this._notify(UpdateType.ERROR, err);
+      this._notify(UpdateType.ERROR_ADD_COMMENT, err);
     }
   }
 
   deleteComment = async (commentId) => {
-    this._notify(UpdateType.DELETING_COMMENT, commentId);
     try {
       await this.#apiService.deleteComment(commentId);
 
@@ -62,7 +61,7 @@ class CommentsModel extends AbstractObservable {
       this._notify(UpdateType.DELETE_COMMENT, commentId);
 
     } catch (err) {
-      this._notify(UpdateType.ERROR, err);
+      this._notify(UpdateType.DELETE_COMMENT_ERROR, commentId);
     }
   }
 }

@@ -3,7 +3,7 @@ import he from 'he';
 import dayjs from 'dayjs';
 
 const createCommentTemplate = (comments, deletingComment, disableDelete, errorComment) => (
-  comments.map((comment) => `<li class="film-details__comment" ${errorComment === comment.id ? 'shake' : ''}>
+  comments.map((comment) => `<li class="film-details__comment ${errorComment === comment.id ? 'shake' : ''}">
       <span class="film-details__comment-emoji">
         <img src="./images/emoji/${comment.emotion}.png" width="55" height="55" alt="emoji-smile">
       </span>
@@ -18,7 +18,7 @@ const createCommentTemplate = (comments, deletingComment, disableDelete, errorCo
     </li>`).join(' ')
 );
 
-const createPopupTemplate = (film, comments, currentText, deletingComment, disableDelete, errorComment, disableForm) => {
+const createPopupTemplate = (film, comments, currentText, deletingComment, disableDelete, errorComment, disableForm, isError) => {
   const watchlistClassName = film.isWatchlist ? 'film-details__control-button--active' : '';
   const watchedClassName = film.isWatched ? 'film-details__control-button--active' : '';
   const favoriteClassName = film.isFavorite ? 'film-details__control-button--active' : '';
@@ -29,7 +29,7 @@ const createPopupTemplate = (film, comments, currentText, deletingComment, disab
   );
 
   return `<section class="film-details" data-film-id="${film.id}">
-    <form class="film-details__inner" action="" method="get">
+    <form class="film-details__inner ${isError ? 'shake' : ''}" action="" method="get">
       <div class="film-details__top-container">
         <div class="film-details__close">
           <button class="film-details__close-btn" type="button">close</button>
@@ -170,6 +170,7 @@ class FilmDetailsView extends SmartView {
   }
 
   get template() {
+    console.log(this.isError);
     return createPopupTemplate(
       this.#films,
       this.#comments,
@@ -178,6 +179,7 @@ class FilmDetailsView extends SmartView {
       this.#disableDelete,
       this.#errorComment,
       this.disableForm,
+      this.isError,
     );
   }
 
@@ -248,6 +250,10 @@ class FilmDetailsView extends SmartView {
     this.element.querySelector('.film-details__comment-input').addEventListener('keyup', this.#addCommentClickHandler);
   }
 
+  setErrorComment = (errorComment) => {
+    this.#errorComment = errorComment;
+  }
+
   #favoriteClickHandler = (evt) => {
     evt.preventDefault();
     this._callback.favoriteClick(this.#films.id);
@@ -265,10 +271,12 @@ class FilmDetailsView extends SmartView {
 
   #emojiClickHandler = (evt) => {
     evt.preventDefault();
+    this.#currentText = this.element.querySelector('.film-details__comment-input').value;
 
     if (evt.target.tagName === 'IMG') {
       this.#currentEmoji = evt.target.dataset.emoji;
     }
+
     this._callback.emojiClick(this.#currentEmoji);
   }
 
@@ -278,6 +286,7 @@ class FilmDetailsView extends SmartView {
     if (evt.target.tagName === 'BUTTON') {
       this.#disableDelete = true;
       this.#errorComment = null;
+      this.#deletingComment = evt.target.dataset.id;
       this.updateElement();
       this.resetData();
       this._callback.deleteClick(evt.target.dataset.id);
@@ -285,21 +294,16 @@ class FilmDetailsView extends SmartView {
   }
 
   #addCommentClickHandler = (evt) => {
-    const filmDetailsCommentInputElement = this.element.querySelector('.film-details__comment-input');
-
-    if (filmDetailsCommentInputElement) {
-      this.#currentText = filmDetailsCommentInputElement.value;
-
-      if (evt.key === 'Enter' && (evt.metaKey || evt.ctrlKey)) {
-        const newComment = {
-          movieId: this.#films.id,
-          text: this.#currentText,
-          emotion: this.#currentEmoji || 'smile',
-        };
-        this.updateElement();
-        this.resetData();
-        this._callback.addComment(newComment);
-      }
+    if (evt.key === 'Enter' && (evt.metaKey || evt.ctrlKey)) {
+      this.#currentText = this.element.querySelector('.film-details__comment-input').value;
+      const newComment = {
+        movieId: this.#films.id,
+        text: this.#currentText,
+        emotion: this.#currentEmoji || 'smile',
+      };
+      this.updateElement();
+      this.resetData();
+      this._callback.addComment(newComment);
     }
   }
 }
