@@ -59,7 +59,6 @@ class CommentsModel extends AbstractObservable {
       ];
 
       this._notify(UpdateType.DELETE_COMMENT, commentId);
-
     } catch (err) {
       this._notify(UpdateType.DELETE_COMMENT_ERROR, commentId);
     }

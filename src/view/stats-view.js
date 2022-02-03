@@ -49,7 +49,6 @@ class StatsView extends SmartView {
   #duration = 0;
   #topGenre = '';
   #labels = [];
-  #events = {};
   #labelsValue = [];
   #currentFilter = FilterStats.All;
 
@@ -79,11 +78,6 @@ class StatsView extends SmartView {
 
   restoreHandlers = () => {
     this.addEvent('onClickStatMenu', 'click', this.#onClickStatMenu);
-  }
-
-  addEvent = (eventTitle, event, callback, element = this.element) => {
-    this.#events[eventTitle] = callback;
-    element.addEventListener(event, callback);
   }
 
   #updateChart = () => {

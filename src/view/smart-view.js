@@ -2,6 +2,7 @@ import AbstractView from './abstract-view.js';
 
 class SmartView extends AbstractView {
   _data = {};
+  #events = {};
 
   updateData = (update) => {
     if (!update) {
@@ -17,6 +18,11 @@ class SmartView extends AbstractView {
     this.replaceElement();
     this.element.scrollTop = scrollPosition;
     this.restoreHandlers();
+  }
+
+  addEvent = (eventTitle, event, callback, element = this.element) => {
+    this.#events[eventTitle] = callback;
+    element.addEventListener(event, callback);
   }
 
   restoreHandlers = () => {

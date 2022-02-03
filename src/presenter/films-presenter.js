@@ -357,25 +357,27 @@ class FilmsPresenter {
     }
 
     if (updateType === UpdateType.DELETE_COMMENT) {
+      this.#activeFilmDetailsView.isError = false;
       this.#activeFilmDetailsView.updateData(this.#currentFilm, this.#commentsModel.comments);
       this.#reloadApp();
     }
 
     if (updateType === UpdateType.DELETE_COMMENT_ERROR) {
+      this.#activeFilmDetailsView.isError = false;
       this.#activeFilmDetailsView.setErrorComment(data);
       this.#activeFilmDetailsView.updateData(this.#currentFilm, this.#commentsModel.comments);
     }
 
-    if (updateType === UpdateType.ADD_COMMENT) {
-      this.#activeFilmDetailsView.updateData(this.#currentFilm, this.#commentsModel.comments);
-      this.#reloadApp();
-    }
-
     if (updateType === UpdateType.ERROR_ADD_COMMENT) {
-      console.log(updateType, data);
       this.#activeFilmDetailsView.isError = true;
       this.#activeFilmDetailsView.disableForm = false;
       this.#activeFilmDetailsView.updateData(this.#currentFilm, this.#commentsModel.comments);
+    }
+
+    if (updateType === UpdateType.ADD_COMMENT) {
+      this.#activeFilmDetailsView.disableForm = false;
+      this.#activeFilmDetailsView.updateData(this.#currentFilm, this.#commentsModel.comments);
+      this.#reloadApp();
     }
 
     if (updateType === UpdateType.CONTROLS) {
