@@ -357,13 +357,11 @@ class FilmsPresenter {
     }
 
     if (updateType === UpdateType.DELETE_COMMENT) {
-      this.#activeFilmDetailsView.isError = false;
       this.#activeFilmDetailsView.updateData(this.#currentFilm, this.#commentsModel.comments);
       this.#reloadApp();
     }
 
     if (updateType === UpdateType.DELETE_COMMENT_ERROR) {
-      this.#activeFilmDetailsView.isError = false;
       this.#activeFilmDetailsView.setErrorComment(data);
       this.#activeFilmDetailsView.updateData(this.#currentFilm, this.#commentsModel.comments);
     }
@@ -375,7 +373,7 @@ class FilmsPresenter {
     }
 
     if (updateType === UpdateType.ADD_COMMENT) {
-      this.#activeFilmDetailsView.disableForm = false;
+      this.#activeFilmDetailsView.resetData();
       this.#activeFilmDetailsView.updateData(this.#currentFilm, this.#commentsModel.comments);
       this.#reloadApp();
     }

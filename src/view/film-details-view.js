@@ -299,21 +299,22 @@ class FilmDetailsView extends SmartView {
       this.resetData();
       this._callback.deleteClick(evt.target.dataset.id);
     }
+    this.#deletingComment = null;
   }
 
   #addCommentClickHandler = (evt) => {
     const commentInputElement = this.element.querySelector('.film-details__comment-input');
 
     if (commentInputElement) {
+      this.#currentText = commentInputElement.value;
+
       if (evt.key === 'Enter' && (evt.metaKey || evt.ctrlKey)) {
-        this.#currentText = commentInputElement.value;
         const newComment = {
           movieId: this.#films.id,
           text: this.#currentText,
           emotion: this.#currentEmoji || 'smile',
         };
         this.updateElement();
-        this.resetData();
         this._callback.addComment(newComment);
       }
     }
